@@ -1,5 +1,6 @@
-// types/express/index.d.ts
-import { User } from '@/types/user';
+// src/types/express.d.ts
+
+import { User } from '@/types/user'; // adjust path if needed
 
 declare global {
   namespace Express {
@@ -11,3 +12,5 @@ declare global {
     }
   }
 }
+
+export {}; // Very important to treat this as a module
