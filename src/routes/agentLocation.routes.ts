@@ -1,4 +1,3 @@
-// routes/agentLocation.ts
 import express, { Router } from 'express';
 import { updateAgentLocation } from '@/controllers/agentLocation';
 

@@ -28,6 +28,8 @@ const options = {
     './src/utils/*.ts',
     './src/models/*.ts',
     './src/middlewares/*.ts',
+    './src/lib/*.ts',
+    './src/utils/*.ts',
   ],
 };
 
