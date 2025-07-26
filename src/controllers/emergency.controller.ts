@@ -1,5 +1,5 @@
 import { EmergencyStatus } from '../generated/prisma'
-import prisma from '@/lib/prismaClient';
+import prisma from '../lib/prismaClient';
 
 import { Request, Response } from 'express';
 import { findNearestAgent } from '@/utils/geo';

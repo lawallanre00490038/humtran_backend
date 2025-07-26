@@ -1,7 +1,7 @@
 // server.ts
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import prisma from '@/lib/prismaClient';
+import prisma from './lib/prismaClient';
 import app from './app';
 
 const server = createServer(app);

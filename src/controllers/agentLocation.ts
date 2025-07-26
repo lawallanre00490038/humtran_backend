@@ -1,7 +1,7 @@
 // controllers/agentLocation.ts
 import { Request, Response } from 'express';
 import { SecurityStatus } from '../generated/prisma'
-import prisma from '@/lib/prismaClient';
+import prisma from '../lib/prismaClient';
 
 
 

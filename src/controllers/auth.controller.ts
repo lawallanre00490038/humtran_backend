@@ -1,4 +1,4 @@
-import prisma from '@/lib/prismaClient';
+import prisma from '../lib/prismaClient';
 import { JwtPayload } from 'jsonwebtoken';
 import { Role } from "@/generated/prisma"
 
