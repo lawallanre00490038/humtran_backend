@@ -4,7 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "build": "pnpm clean && tsc -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest --run",
@@ -23,7 +23,7 @@
   "imports": {
     "#*": "./src/*"
   },
-  "engines": {
+    "engines": {
     "node": "22.14.0"
   },
   "keywords": [],
