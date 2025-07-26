@@ -2,7 +2,7 @@
   "name": "humtran_backend",
   "version": "1.0.0",
   "main": "server.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "pnpm clean && tsc -p tsconfig.build.json",
