@@ -1,6 +1,6 @@
 import prisma from '../lib/prismaClient';
 import { JwtPayload } from 'jsonwebtoken';
-import { Role } from "@/generated/prisma"
+import { Role } from "../generated/prisma"
 
 import { Request, Response } from 'express';
 import { hashPassword, comparePasswords, generateToken, verifyToken } from '@/utils/auth';

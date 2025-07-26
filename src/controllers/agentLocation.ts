@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import { SecurityStatus } from '../generated/prisma'
 
-import prisma from '../lib/prismaClient';
-
-
+import prisma from '../lib/prismaClient'
 
 export const updateAgentLocation = async (req: Request, res: Response) => {
   const { agentId, lat, lng } = req.body;
