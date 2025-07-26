@@ -23,7 +23,7 @@
   "imports": {
     "#*": "./src/*"
   },
-    "engines": {
+  "engines": {
     "node": "22.14.0"
   },
   "keywords": [],
