@@ -23,6 +23,9 @@
   "imports": {
     "#*": "./src/*"
   },
+    "engines": {
+    "node": "22.14.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
