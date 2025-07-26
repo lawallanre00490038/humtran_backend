@@ -4,7 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rm -rf dist",
     "build": "pnpm clean && tsc -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest --run",
