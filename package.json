@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "pnpm clean && tsc -p tsconfig.build.json",
+    "build": "pnpm clean && prisma generate && tsc -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest --run",
     "test:ui": "vitest --ui",
