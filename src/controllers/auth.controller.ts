@@ -84,7 +84,8 @@ export const login = async (req: Request, res: Response) => {
 
 
 export const getUser = async (req: Request, res: Response) => {
-  // const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+  // const {token} = req.body
+
   const authHeader = req.headers.authorization;
   const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
   const token = req.cookies?.token || tokenFromHeader;

@@ -7,7 +7,7 @@ import authRoutes from '@/routes/auth.routes';
 import agentLocationRoutes from '@/routes/agentLocation.routes';
 import emergencyRoutes from '@/routes/emergency.routes';
 
-import cookieParser from 'cookie-parser'; // if not already used
+import cookieParser from 'cookie-parser';
 
 
 import { setupSwagger } from './swagger';
