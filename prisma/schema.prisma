@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  SECURITY
+  ADMIN
+}
+
+enum EmergencyStatus {
+  PENDING
+  ASSIGNED
+  ARRIVED
+  COMPLETED
+}
+
+enum SecurityStatus {
+  OFF_LINE
+  ON_LINE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String?  @unique
+  phone     String?  @unique
+  password  String
+  name      String
+  role      Role     @default(USER)
+  isOnline  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  emergencies   EmergencyRequest[]
+  securityAgent SecurityAgent?
+  messagesSent  Message[]       @relation("SenderMessages")
+  messagesRecv  Message[]       @relation("ReceiverMessages")
+
+
+  callsMade     CallLog[]       @relation("MadeCalls")
+  callsReceived CallLog[]       @relation("ReceivedCalls")
+}
+
+model EmergencyRequest {
+  id         String          @id @default(uuid())
+  type       String          // e.g., "Robbery", "Fire", "Assault"
+  userId     String
+  user       User            @relation(fields: [userId], references: [id])
+  status     EmergencyStatus @default(PENDING)
+  lat        Float
+  lng        Float
+  description String?
+  createdAt  DateTime        @default(now())
+  
+  securityId String?
+  assignedTo SecurityAgent?  @relation("AgentAssignments", fields: [securityId], references: [id])
+}
+
+model SecurityAgent {
+  id          String  @id @default(uuid())
+  name        String
+  lat         Float
+  lng         Float
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id])
+  lastUpdated DateTime @updatedAt
+  status      SecurityStatus @default(OFF_LINE)
+
+  assignedEmergencies EmergencyRequest[] @relation("AgentAssignments")
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  content    String
+  type       String   // "TEXT", "IMAGE", "VIDEO", "AUDIO"
+  createdAt  DateTime @default(now())
+
+  senderId   String
+  receiverId String
+  sender     User     @relation("SenderMessages", fields: [senderId], references: [id])
+  receiver   User     @relation("ReceiverMessages", fields: [receiverId], references: [id])
+}
+
+
+model CallLog {
+  id         String    @id @default(uuid())
+  callerId   String
+  receiverId String
+  callType   CallType // AUDIO or VIDEO
+  startedAt  DateTime @default(now())
+  endedAt    DateTime?
+
+  caller     User      @relation("MadeCalls", fields: [callerId], references: [id])
+  receiver   User      @relation("ReceivedCalls", fields: [receiverId], references: [id])
+}
+
+enum CallType {
+  AUDIO
+  VIDEO
+}
