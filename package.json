@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "clean": "rm -rf dist",
+    "postinstall": "prisma generate",
     "build": "pnpm clean && pnpm prisma generate && tsc -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest --run",
@@ -16,7 +17,6 @@
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postinstall": "prisma generate && prisma db push",
     "prepare": "husky"
   },
   "imports": {
