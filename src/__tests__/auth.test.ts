@@ -43,7 +43,7 @@ describe('Auth Endpoints', () => {
     await prisma.$disconnect();
   });
 
-  it('should register a user and return a token', async () => {
+  it('should register a user and return a token and message', async () => {
     const res = await request(app).post('/api/auth/register').send({
       email: 'test@example.com',
       password: 'Password123',
@@ -53,6 +53,7 @@ describe('Auth Endpoints', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.token).toBeDefined();
+    expect(res.body.message).toBe('Registration successful.');
 
     const userInDb = await prisma.user.findUnique({
       where: { email: 'test@example.com' },
