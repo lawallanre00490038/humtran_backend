@@ -5,7 +5,8 @@
   "type": "commonjs",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "pnpm clean && prisma generate && tsc -p tsconfig.build.json",
+    "generate": "prisma generate",
+    "build": "pnpm clean && npx prisma generate && tsc -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest --run",
     "test:ui": "vitest --ui",
@@ -17,7 +18,7 @@
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postinstall": "prisma generate && prisma db push",
+    "postinstall": "npx prisma generate && npx prisma db push",
     "prepare": "husky"
   },
   "imports": {
