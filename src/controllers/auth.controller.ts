@@ -2,7 +2,7 @@ import prisma from '../lib/prismaClient';
 import { JwtPayload } from 'jsonwebtoken';
 import { Role } from "../generated/prisma"
 
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { hashPassword, comparePasswords, generateToken, verifyToken } from '@/utils/auth';
 
 
@@ -83,8 +83,8 @@ export const login = async (req: Request, res: Response) => {
 
 
 
-export const getUser = async (req: Request, res: Response) => {
-  
+export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+
   const authHeader = req.headers.authorization;
   const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
   const token = tokenFromHeader || req.cookies?.token;
@@ -109,6 +109,7 @@ export const getUser = async (req: Request, res: Response) => {
     }
 
     res.json({ user });
+    next();
   } catch (error) {
     return res.status(401).json({ error: 'Invalid token' });
   }
