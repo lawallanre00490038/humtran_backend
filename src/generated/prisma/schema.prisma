@@ -68,7 +68,7 @@ model SecurityAgent {
   lat         Float
   lng         Float
   userId      String         @unique
-  user        User           @relation(fields: [userId], references: [id])
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   lastUpdated DateTime       @updatedAt
   status      SecurityStatus @default(OFF_LINE)
 
