@@ -84,11 +84,10 @@ export const login = async (req: Request, res: Response) => {
 
 
 export const getUser = async (req: Request, res: Response) => {
-  // const {token} = req.body
-
+  
   const authHeader = req.headers.authorization;
   const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
-  const token = req.cookies?.token || tokenFromHeader;
+  const token = tokenFromHeader || req.cookies?.token;
 
   if (!token) {
     return res.status(401).json({ error: 'Token is missing' });
