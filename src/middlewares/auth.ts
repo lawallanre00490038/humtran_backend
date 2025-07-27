@@ -1,6 +1,6 @@
 // middlewares/auth.ts
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '@/utils/auth';
+import { verifyToken } from '../utils/auth';
 
 export const requireAuth = (roles: string[] = []) => {
   return (req: Request, res: Response, next: NextFunction) => {

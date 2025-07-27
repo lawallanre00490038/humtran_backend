@@ -1,11 +1,11 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 
-import { middleware } from "@/middlewares/middlewares.js";
-import { errorHandler } from '@/middlewares/errorHandler';
-import authRoutes from '@/routes/auth.routes';
-import agentLocationRoutes from '@/routes/agentLocation.routes';
-import emergencyRoutes from '@/routes/emergency.routes';
+import { middleware } from "./middlewares/middlewares.js";
+import { errorHandler } from './middlewares/errorHandler';
+import authRoutes from './routes/auth.routes';
+import agentLocationRoutes from './routes/agentLocation.routes';
+import emergencyRoutes from './routes/emergency.routes';
 
 import cookieParser from 'cookie-parser';
 
