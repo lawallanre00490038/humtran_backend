@@ -2,23 +2,22 @@
   "name": "humtran_backend",
   "version": "1.0.0",
   "main": "server.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "generate": "prisma generate",
-    "build": "pnpm clean && pnpm generate && tsc -p tsconfig.build.json",
+    "build": "pnpm clean && pnpm prisma generate && tsc -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest --run",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
     "dev": "tsx --watch --env-file .env src/server.ts",
-    "start": "node -r tsconfig-paths/register dist/server.js",
+    "start": "node --env-file .env dist/server.js",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postinstall": "npx prisma generate && npx prisma db push",
+    "postinstall": "prisma generate && prisma db push",
     "prepare": "husky"
   },
   "imports": {
@@ -41,8 +40,7 @@
     "jsonwebtoken": "^9.0.2",
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "tsconfig-paths": "^4.2.0"
+    "swagger-ui-express": "^5.0.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
