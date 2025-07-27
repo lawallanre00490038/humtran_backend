@@ -1,16 +1,20 @@
 import prisma from '../lib/prismaClient';
 import { JwtPayload } from 'jsonwebtoken';
 import { Role } from "../generated/prisma"
+import { RegisterPayload, LoginPayload, ApiResponsePayload } from '../types/auth.types';
 
 import { Request, Response, NextFunction } from 'express';
 import { hashPassword, comparePasswords, generateToken, verifyToken } from '../utils/auth';
 
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request<{}, {}, RegisterPayload>, res: Response<ApiResponsePayload>) => {
   const { email, phone, password, name, role } = req.body;
 
   if (!email && !phone) {
-    return res.status(400).json({ error: 'Email or phone is required' });
+    res.status(400).json({
+      message: "Email or phone is required",
+      error: "Invalid credentials",
+    } satisfies ApiResponsePayload)
   }
 
   const existingUser = await prisma.user.findFirst({
@@ -43,15 +47,15 @@ export const register = async (req: Request, res: Response) => {
   });
 
    res.json({
-    message: 'Registeration successful.',
+    message: 'Registration successful.',
     token: generateToken({ id: user.id, role: user.role }), // Add this
-  });
+  } satisfies ApiResponsePayload);
   
 };
 
 
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request<{}, {}, LoginPayload>, res: Response<ApiResponsePayload>) => {
   const { identifier, password } = req.body;
 
   const user = await prisma.user.findFirst({
@@ -75,7 +79,7 @@ export const login = async (req: Request, res: Response) => {
   res.json({
     message: 'Login successful.',
     token: generateToken({ id: user.id, role: user.role }), // Add this
-  });
+  } satisfies ApiResponsePayload);
   
 };
 
@@ -111,6 +115,7 @@ export const getCurrentUser = async (req: Request, res: Response, next: NextFunc
     res.json({ user });
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json(
+      { error: 'Invalid token' } satisfies ApiResponsePayload);
   }
 };

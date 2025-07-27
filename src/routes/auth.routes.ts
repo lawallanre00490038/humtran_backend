@@ -55,6 +55,8 @@ const router: Router = express.Router();
  *               properties:
  *                 token:
  *                   type: string
+ *                 message: 
+ *                    type: string
  *       400:
  *         description: Email or phone already exists or validation error
  */
@@ -93,6 +95,8 @@ const router: Router = express.Router();
  *               properties:
  *                 token:
  *                   type: string
+ *                 message: 
+ *                    type: string    
  *       400:
  *         description: Invalid credentials
  */
