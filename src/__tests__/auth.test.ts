@@ -84,6 +84,7 @@ describe('Auth Endpoints', () => {
     expect(userInDb).not.toBeNull();
   });
 
+  
   it('should not login a user with invalid credentials', async () => {
     const res = await request(app).post('/api/auth/login').send({
       identifier: 'test@example.com',
