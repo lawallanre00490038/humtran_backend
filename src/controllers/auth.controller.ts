@@ -3,7 +3,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { Role } from "../generated/prisma"
 
 import { Request, Response, NextFunction } from 'express';
-import { hashPassword, comparePasswords, generateToken, verifyToken } from '@/utils/auth';
+import { hashPassword, comparePasswords, generateToken, verifyToken } from '../utils/auth';
 
 
 export const register = async (req: Request, res: Response) => {

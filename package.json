@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "postinstall": "prisma generate",
     "build": "pnpm clean && pnpm prisma generate && tsc -p tsconfig.build.json",
     "test": "vitest",

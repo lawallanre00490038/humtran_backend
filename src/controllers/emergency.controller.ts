@@ -2,10 +2,10 @@ import { EmergencyStatus } from '../generated/prisma'
 import prisma from '../lib/prismaClient';
 
 import { Request, Response } from 'express';
-import { findNearestAgent } from '@/utils/geo';
+import { findNearestAgent } from '../utils/geo';
 
 import { Socket } from 'socket.io';
-import {io} from "@/server"
+import {io} from "../server"
 
 
 
