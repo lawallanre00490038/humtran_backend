@@ -1,7 +1,7 @@
 
-# 🛡️ SecureLink - Security Agent Dispatch Platform
+# 🛡️ Humguard - Security Agent Dispatch Platform
 
-SecureLink is a real-time security dispatch system that connects users in need of protection with nearby security agents. It features:
+Humguard is a real-time security dispatch system that connects users in need of protection with nearby security agents. It features:
 
 - 🧍 User & 👮‍♂️ Security Agent roles
 - 🔐 JWT authentication
