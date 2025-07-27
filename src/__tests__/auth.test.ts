@@ -54,6 +54,8 @@ describe('Auth Endpoints', () => {
     expect(res.status).toBe(200);
     expect(res.body.token).toBeDefined();
     expect(res.body.message).toBe('Registration successful.');
+    console.log(res.body.token);
+    console.log(res.body.message);
 
     const userInDb = await prisma.user.findUnique({
       where: { email: 'test@example.com' },
