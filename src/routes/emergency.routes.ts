@@ -1,5 +1,6 @@
 import express, { Router } from 'express';
-import { requestHelp, assignAgent } from '../controllers/emergency.controller';
+
+import { assignAgent, requestHelp } from '../controllers/emergency.controller';
 import { requireAuth } from '../middlewares/auth';
 
 const router: Router = express.Router();

@@ -1,26 +1,9 @@
 // src/swagger.ts
 import { Express } from 'express';
-import swaggerUi from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Humguard API',
-      version: '1.0.0',
-      description: 'API documentation for the Realtime Security Platform',
-    },
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-        },
-      },
-    },
-    security: [{ bearerAuth: [] }],
-  },
   apis: [
     './src/controllers/*.ts', 
     './src/routes/*.ts', 
@@ -31,6 +14,23 @@ const options = {
     './src/lib/*.ts',
     './src/utils/*.ts',
   ],
+  definition: {
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          scheme: 'bearer',
+          type: 'http',
+        },
+      },
+    },
+    info: {
+      description: 'API documentation for the Realtime Security Platform',
+      title: 'Humguard API',
+      version: '1.0.0',
+    },
+    openapi: '3.0.0',
+    security: [{ bearerAuth: [] }],
+  },
 };
 
 const swaggerSpec = swaggerJsDoc(options);

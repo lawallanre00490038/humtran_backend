@@ -1,8 +1,9 @@
 // server.ts
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import prisma from './lib/prismaClient';
+
 import app from './app';
+import prisma from './lib/prismaClient';
 
 const server = createServer(app);
 
@@ -18,36 +19,36 @@ export const initSocketHandlers = (io: Server) => {
 
 
     socket.on('join', (userId: string) => {
-      socket.join(userId);
+      void socket.join(userId);
       console.log(`User ${userId} joined their socket room`);
     });
 
-    socket.on('location-update', async ({ userId, lat, lng }) => {
+    socket.on('location-update', async ({ lat, lng, userId }: { lat: number; lng: number; userId: string }) => {
       await prisma.securityAgent.update({
-        where: { userId },
         data: { lat, lng },
+        where: { userId },
       });
 
       // Broadcast to user
       const user = await prisma.emergencyRequest.findFirst({
-        where: { userId: userId, status: 'ASSIGNED' },
+        where: { status: 'ASSIGNED', userId },
       });
 
       if (user) {
-        socket.to(user.userId).emit('agent-location', { lat, lng });
+        void socket.to(user.userId).emit('agent-location', { lat, lng });
       }
     });
 
 
 
-    socket.on('chat', async ({ from, to, message }) => {
-      io.to(to).emit('chat', { from, message });
+    socket.on('chat', async ({ from, message, to }: { from: string; message: string; to: string }) => {
+      void io.to(to).emit('chat', { from, message });
     
       await prisma.message.create({
         data: {
-          senderId: from,
-          receiverId: to,
           content: message,
+          receiverId: to,
+          senderId: from,
           type: 'TEXT',
         },
       });
@@ -65,5 +66,7 @@ export const initSocketHandlers = (io: Server) => {
 
 initSocketHandlers(io);
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on ${PORT}`));
+const PORT = Number(process.env.PORT) || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running on ${String(PORT)}`);
+});

@@ -1,37 +1,42 @@
+import { Request, Response } from 'express';
+import { Socket } from 'socket.io';
+
 import { EmergencyStatus } from '../generated/prisma'
 import prisma from '../lib/prismaClient';
-
-import { Request, Response } from 'express';
+import {io} from "../server"
 import { findNearestAgent } from '../utils/geo';
 
-import { Socket } from 'socket.io';
-import {io} from "../server"
 
 
 
-
+  
 export const requestHelp = async (req: Request, res: Response) => {
-  const { type, location } = req.body;
+  const { location, type } = req.body as { location: { lat: number; lng: number }; type: string };
   const userId = req.user.id;
 
   const emergency = await prisma.emergencyRequest.create({
     data: {
-      type,
       lat: location.lat,
       lng: location.lng,
-      userId,
       status: EmergencyStatus.PENDING,
+      type,
+      userId,
     },
   });
 
   // Find nearest available agent using utils/geo.ts
   const agents = await prisma.securityAgent.findMany();
-  const nearest = findNearestAgent(location, agents); // Haversine formula inside
+  const agentsWithLocation = agents.map(agent => ({
+    ...agent,
+    location: { lat: agent.lat, lng: agent.lng }
+  }));
+  const nearest = findNearestAgent(location, agentsWithLocation);
 
   if (nearest) {
     await prisma.emergencyRequest.update({
+      data: { securityId: nearest.userId, status: EmergencyStatus.ASSIGNED },
       where: { id: emergency.id },
-      data: { userId: nearest.userId, status: EmergencyStatus.ASSIGNED },
+      
     });
 
     // Notify via socket
@@ -58,14 +63,15 @@ export const requestHelp = async (req: Request, res: Response) => {
 
 
 export const assignAgent = async (req: Request, res: Response) => {
-  const { emergencyId, agentId } = req.body;
+  const { agentId, emergencyId } = req.body as { agentId: string; emergencyId: string };
 
   const assigned = await prisma.emergencyRequest.update({
-    where: { id: emergencyId },
     data: {
-      status: EmergencyStatus.ASSIGNED,
       securityId: agentId,
+      status: EmergencyStatus.ASSIGNED,
     },
+    where: { id: emergencyId },
+    
   });
 
   res.json(assigned);

@@ -1,8 +1,7 @@
 // middlewares.ts
-import { RequestHandler } from "express";
-import { Response, Request, NextFunction } from "express";
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 export const middleware: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
-  console.log("Response sent");
+  console.log('Response sent');
   next();
 };

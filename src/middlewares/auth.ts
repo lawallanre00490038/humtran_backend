@@ -1,5 +1,6 @@
 // middlewares/auth.ts
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+
 import { verifyToken } from '../utils/auth';
 
 export const requireAuth = (roles: string[] = []) => {
@@ -9,7 +10,7 @@ export const requireAuth = (roles: string[] = []) => {
     if (!token) return res.status(401).json({ error: 'No token' });
 
     try {
-      const user = verifyToken(token) as any;
+      const user = verifyToken(token);
       if (roles.length && !roles.includes(user.role)) {
         return res.status(403).json({ error: 'Forbidden' });
       }

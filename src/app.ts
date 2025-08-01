@@ -1,15 +1,13 @@
-import express, { Express, Request, Response } from 'express';
-import cors from 'cors';
-
-import { middleware } from "./middlewares/middlewares.js";
-import { errorHandler } from './middlewares/errorHandler';
-import authRoutes from './routes/auth.routes';
-import agentLocationRoutes from './routes/agentLocation.routes';
-import emergencyRoutes from './routes/emergency.routes';
 
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import express, { Express, Request, Response } from 'express';
 
-
+import errorHandler from './middlewares/errorHandler';
+import { middleware } from "./middlewares/middlewares.js";
+import agentLocationRoutes from './routes/agentLocation.routes';
+import authRoutes from './routes/auth.routes';
+import emergencyRoutes from './routes/emergency.routes';
 import { setupSwagger } from './swagger';
 
 const app: Express = express();
