@@ -1,9 +1,12 @@
 // tests/auth.test.ts
-import { hashPassword, comparePasswords } from '../utils/auth';
+
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it  } from 'vitest';
+
 import app from '../app';
 import { PrismaClient } from '../generated/prisma';
+import { comparePasswords, hashPassword } from '../utils/auth';
+
 
 const prisma = new PrismaClient();
 
@@ -46,16 +49,15 @@ describe('Auth Endpoints', () => {
   it('should register a user and return a token and message', async () => {
     const res = await request(app).post('/api/auth/register').send({
       email: 'test@example.com',
-      password: 'Password123',
       name: 'Test User',
+      password: 'Password123',
       role: 'USER',
     });
-
     expect(res.status).toBe(200);
-    expect(res.body.token).toBeDefined();
-    expect(res.body.message).toBe('Registration successful.');
-    console.log(res.body.token);
-    console.log(res.body.message);
+    expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('message', 'Registration successful.');
+    console.log(Object.hasOwnProperty.call(res.body, 'token'));
+    console.log(Object.hasOwnProperty.call(res.body, 'message'));
 
     const userInDb = await prisma.user.findUnique({
       where: { email: 'test@example.com' },
@@ -71,11 +73,17 @@ describe('Auth Endpoints', () => {
       password: 'Password123',
     });
 
+    // expect(res.status).toBe(200);
+    // expect(res.body.token).toBeDefined();
+    // expect(res.body.message).toBe('Login successful.');
+    // console.log(res.body.token);
+    // console.log(res.body.message);
+
     expect(res.status).toBe(200);
-    expect(res.body.token).toBeDefined();
-    expect(res.body.message).toBe('Login successful.');
-    console.log(res.body.token);
-    console.log(res.body.message);
+    expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('message', 'Login successful.');
+    console.log(Object.hasOwnProperty.call(res.body, 'token'));
+    console.log(Object.hasOwnProperty.call(res.body, 'message'));
 
     const userInDb = await prisma.user.findUnique({
       where: { email: 'test@example.com' },

@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
 
-import errorHandler from './middlewares/errorHandler';
+// import errorHandler from './middlewares/errorHandler';
 import { middleware } from "./middlewares/middlewares.js";
 import agentLocationRoutes from './routes/agentLocation.routes';
 import authRoutes from './routes/auth.routes';
@@ -32,7 +32,7 @@ app.use('/api/emergency', emergencyRoutes);
 app.use('/api/location', agentLocationRoutes);
 
 // Global error handler (should be after routes)
-app.use(errorHandler);
+// app.use(errorHandler);
 
 export default app;
 
