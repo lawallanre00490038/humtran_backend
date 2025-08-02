@@ -56,8 +56,9 @@ describe('Auth Endpoints', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('token');
     expect(res.body).toHaveProperty('message', 'Registration successful.');
-    console.log(Object.hasOwnProperty.call(res.body, 'token'));
-    console.log(Object.hasOwnProperty.call(res.body, 'message'));
+
+    console.log(Object.prototype.hasOwnProperty.call(res.body, 'token'));
+    console.log(Object.prototype.hasOwnProperty.call(res.body, 'message'));
 
     const userInDb = await prisma.user.findUnique({
       where: { email: 'test@example.com' },
@@ -82,6 +83,7 @@ describe('Auth Endpoints', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('token');
     expect(res.body).toHaveProperty('message', 'Login successful.');
+
     console.log(Object.hasOwnProperty.call(res.body, 'token'));
     console.log(Object.hasOwnProperty.call(res.body, 'message'));
 
@@ -100,8 +102,8 @@ describe('Auth Endpoints', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe('Invalid credentials');
-
+    expect((res.body as { error: string }).error).toBe('Invalid credentials');
+    
     const userInDb = await prisma.user.findUnique({
       where: { email: 'test@example.com' },
     });
