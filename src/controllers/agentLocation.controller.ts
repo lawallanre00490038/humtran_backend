@@ -4,10 +4,10 @@ import { SecurityStatus } from '../generated/prisma'
 import prisma from '../lib/prismaClient'
 
 export const updateAgentLocation = async (req: Request, res: Response) => {
-  const { agentUserId, location } = req.body as { agentUserId: string; location: { lat: number; lng: number } };
+  const { agentId, location } = req.body as { agentId: string; location: { lat: number; lng: number } };
   const { lat, lng } = location;
 
-  if (!agentUserId || !lat || !lng) {
+  if (!agentId || !lat || !lng) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
@@ -19,7 +19,7 @@ export const updateAgentLocation = async (req: Request, res: Response) => {
         lng: lng,
         status: SecurityStatus.ON_LINE
       },
-      where: { id: agentUserId },
+      where: { id: agentId },
      
     });
 

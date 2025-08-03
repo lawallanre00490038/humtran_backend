@@ -24,10 +24,10 @@ export const initSocketHandlers = (io: Server) => {
     });
 
 
-    socket.on('location-update', async ({ agentUserId, lat, lng, requesterUserId }: { agentUserId: string, lat: number; lng: number; requesterUserId: string }) => {
+    socket.on('update-agent-location', async ({ agentId, lat, lng, requesterUserId }: { agentId: string, lat: number; lng: number; requesterUserId: string }) => {
       await prisma.securityAgent.update({
         data: { lat, lng },
-        where: { userId: agentUserId },
+        where: { id: agentId },
       });
 
       // Broadcast to user
@@ -36,7 +36,7 @@ export const initSocketHandlers = (io: Server) => {
       });
 
       if (user) {
-        void socket.to(user.userId).emit('agent-location', { lat, lng });
+        void socket.to(user.userId).emit('updated-agent-location', { lat, lng });
       }
     });
 
@@ -52,10 +52,6 @@ export const initSocketHandlers = (io: Server) => {
         console.error('Sender or receiver not found:', { from, to });
         return;
       }
-
-      console.log('New message:', { from, message, to })
-      console.log('Sender:', senderExists)
-      console.log('Receiver:', receiverExists)
       
       await prisma.message.create({
         data: {

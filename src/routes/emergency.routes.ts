@@ -17,6 +17,7 @@ const router: Router = express.Router();
  * /api/emergency:
  *   post:
  *     summary: User requests emergency help
+ *     description: User requests emergency help by providing location and type of emergency. Requires a valid JWT token in the `Authorization` header.
  *     tags: [Emergency]
  *     security:
  *       - bearerAuth: []
@@ -29,8 +30,10 @@ const router: Router = express.Router();
  *             properties:
  *               type:
  *                 type: string
+ *                 description: Type of emergency (e.g. robbery, fire, flood, etc.)
  *               location:
  *                 type: object
+ *                 description: Latitude and longitude of the emergency location
  *                 properties:
  *                   lat:
  *                     type: number
@@ -48,6 +51,7 @@ const router: Router = express.Router();
  * /api/emergency/assign:
  *   post:
  *     summary: Admin assigns a security agent to an emergency
+ *     description: Admin assigns a security agent to an emergency by providing emergencyId and agentId. Requires a valid JWT token in the `Authorization` header.
  *     tags: [Emergency]
  *     security:
  *       - bearerAuth: []

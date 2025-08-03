@@ -19,6 +19,7 @@ const router: Router = Router();
  * /api/update-agent-location:
  *   post:
  *     summary: Update agent location
+ *     description: Update agent location, Ensure you pass the authentication token in the header.
  *     tags: [Update Agent Location]
  *     security:
  *       - bearerAuth: []
@@ -29,8 +30,9 @@ const router: Router = Router();
  *           schema:
  *             type: object
  *             properties:
- *               agentUserId:
+ *               agentId:
  *                 type: string
+ *                 description: Agent Id
  *               location:
  *                 type: object
  *                 properties:
