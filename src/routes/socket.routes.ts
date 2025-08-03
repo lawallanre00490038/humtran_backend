@@ -13,6 +13,7 @@ const router: Router = express.Router();
  *     description: |
  *       ### Available Events
  *       #### 📡 Client to Server. You can emit these events using the `socket.emit` method.
+ *       #### But ensure you first connect to the backend socket server. E.g. `const socket = io('https://humtran-backend.onrender.com')`;
  *       - `join`: Join a socket room with `userId` either as an agent or a user
  *         - Request Payload: `{ userId: string }`
  *       - `update-agent-location`: Agent sends live location updates to the user
