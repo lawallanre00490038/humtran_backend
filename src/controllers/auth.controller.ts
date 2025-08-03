@@ -30,13 +30,13 @@ export const register = async (
   const hashed = await hashPassword(password);
 
   const user = await prisma.user.create({
-    data: { email, name, password: hashed, phone, role: role as Role },
+    data: { email: email, isOnline: true, name: name,  password: hashed, phone: phone, role: role as Role },
   });
 
   let securityAgent = null;
   if (role === Role.SECURITY) {
     securityAgent = await prisma.securityAgent.create({
-      data: { lat: 0, lng: 0, name, userId: user.id },
+      data: { lat: 0, lng: 0, name: name,  status: 'ON_LINE', userId: user.id },
     });
 
     console.log("The created security agent is", securityAgent)
@@ -78,6 +78,8 @@ export const login = async (
     },
   });
 
+  console.log("The user from login is", user)
+
   if (!user || !(await comparePasswords(password, user.password))) {
     return res.status(400).json({ error: 'Invalid credentials' });
   }
@@ -113,8 +115,6 @@ export const login = async (
     token,
   });
 };
-
-
 
 
 

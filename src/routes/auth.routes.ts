@@ -140,6 +140,6 @@ const router: Router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
-router.get('/me', requireAuth(['USER']), getCurrentUser)
+router.get('/me', requireAuth(['USER', 'SECURITY']), getCurrentUser)
 
 export default router;
