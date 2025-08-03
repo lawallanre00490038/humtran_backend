@@ -23,6 +23,7 @@ const router: Router = express.Router();
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
+ *       description: This is a request object containing location and type of emergency. Type of emergency can be (e.g. robbery, fire, flood, etc.)
  *       content:
  *         application/json:
  *           schema:
@@ -37,8 +38,10 @@ const router: Router = express.Router();
  *                 properties:
  *                   lat:
  *                     type: number
+ *                     description: Latitude of the emergency location
  *                   lng:
  *                     type: number
+ *                     description: Longitude of the emergency location
  *     responses:
  *       200:
  *         description: Emergency request created
