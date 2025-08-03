@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Socket.IO Test Client</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>Socket.IO Test Client</h2>
+  <label>
+    User/Agent ID:
+    <input id="userId" type="text" />
+    <button onclick="joinRoom()">Join Room</button>
+  </label>
+
+  <hr />
+
+  <h3>Send Chat</h3>
+  <label>
+    To:
+    <input id="to" type="text" />
+  </label>
+  <label>
+    Message:
+    <input id="message" type="text" />
+  </label>
+  <button onclick="sendChat()">Send Chat</button>
+
+  <hr />
+
+  <h3>Send Location</h3>
+  <label>
+    Latitude:
+    <input id="lat" type="number" step="0.0001" />
+  </label>
+  <label>
+    Longitude:
+    <input id="lng" type="number" step="0.0001" />
+  </label>
+  <button onclick="sendLocation()">Update Location</button>
+
+  <hr />
+
+  <h3>Logs</h3>
+  <pre id="log"></pre>
+
+  <script>
+    const socket = io('http://localhost:3000'); // Change if needed
+
+    const log = (msg) => {
+      document.getElementById('log').textContent += msg + '\n';
+    };
+
+    const joinRoom = () => {
+      const userId = document.getElementById('userId').value;
+      socket.emit('join', userId);
+      log(`Joined room: ${userId}`);
+    };
+
+    const sendChat = () => {
+      const from = document.getElementById('userId').value;
+      const to = document.getElementById('to').value;
+      const message = document.getElementById('message').value;
+      socket.emit('chat', { from, message, to});
+      log(`Chat sent: to ${to}: "${message}"`);
+    };
+
+    const sendLocation = () => {
+      const lat = parseFloat(document.getElementById('lat').value);
+      const lng = parseFloat(document.getElementById('lng').value);
+      const userId = document.getElementById('userId').value;
+      socket.emit('location-update', { lat, lng, userId });
+      log(`Location sent: (${lat}, ${lng})`);
+    };
+
+    // Listen to socket events
+    socket.on('chat', (msg) => {
+      log(`Received chat from ${msg.from}: "${msg.message}"`);
+    });
+
+    socket.on('agent-location', ({ lat, lng }) => {
+      log(`Agent location update: ${lat}, ${lng}`);
+    });
+
+    socket.on('new-emergency', (data) => {
+      log(`🚨 New emergency assigned: ${JSON.stringify(data.emergency, null, 2)}`);
+    });
+  </script>
+</body>
+</html>

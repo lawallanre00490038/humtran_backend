@@ -1,6 +1,7 @@
 import express, { Router } from 'express';
 
 import { getCurrentUser, login, register } from '../controllers/auth.controller';
+import { requireAuth } from '../middlewares/auth.middleware';
 
 const router: Router = express.Router();
 
@@ -139,6 +140,6 @@ const router: Router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
-router.get('/me', getCurrentUser)
+router.get('/me', requireAuth(['USER']), getCurrentUser)
 
 export default router;

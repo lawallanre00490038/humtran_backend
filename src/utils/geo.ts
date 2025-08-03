@@ -14,7 +14,7 @@ export const calculateDistance = (loc1: { lat: number; lng: number }, loc2: { la
   return R * c; // in meters
 };
 
-export const findNearestAgent = (location: { lat: number; lng: number }, agents: { location: { lat: number; lng: number }; userId: string }[]) => {
+export const findNearestAgent = (location: { lat: number; lng: number }, agents: { id: string; location: { lat: number; lng: number }}[]) => {
   let min = Infinity;
   let nearest = null;
   for (const agent of agents) {

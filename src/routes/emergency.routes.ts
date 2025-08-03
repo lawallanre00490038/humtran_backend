@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 
 import { assignAgent, requestHelp } from '../controllers/emergency.controller';
-import { requireAuth } from '../middlewares/auth';
+import { requireAuth } from '../middlewares/auth.middleware';
 
 const router: Router = express.Router();
 
@@ -14,7 +14,7 @@ const router: Router = express.Router();
 
 /**
  * @swagger
- * /emergency:
+ * /api/emergency:
  *   post:
  *     summary: User requests emergency help
  *     tags: [Emergency]
@@ -45,7 +45,7 @@ const router: Router = express.Router();
 
 /**
  * @swagger
- * /emergency/assign:
+ * /api/emergency/assign:
  *   post:
  *     summary: Admin assigns a security agent to an emergency
  *     tags: [Emergency]
@@ -70,7 +70,7 @@ const router: Router = express.Router();
  */
 
 router.post('/', requireAuth(['USER']), requestHelp);
-router.post('/assign', requireAuth(['ADMIN']), assignAgent);
+router.post('/assign', requireAuth(['USER']), assignAgent);
 
 export default router;
 

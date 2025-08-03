@@ -23,15 +23,16 @@ export const initSocketHandlers = (io: Server) => {
       console.log(`User ${userId} joined their socket room`);
     });
 
-    socket.on('location-update', async ({ lat, lng, userId }: { lat: number; lng: number; userId: string }) => {
+
+    socket.on('location-update', async ({ agentUserId, lat, lng, requesterUserId }: { agentUserId: string, lat: number; lng: number; requesterUserId: string }) => {
       await prisma.securityAgent.update({
         data: { lat, lng },
-        where: { userId },
+        where: { userId: agentUserId },
       });
 
       // Broadcast to user
       const user = await prisma.emergencyRequest.findFirst({
-        where: { status: 'ASSIGNED', userId },
+        where: { status: 'ASSIGNED', userId: requesterUserId },
       });
 
       if (user) {
@@ -39,11 +40,23 @@ export const initSocketHandlers = (io: Server) => {
       }
     });
 
-
-
     socket.on('chat', async ({ from, message, to }: { from: string; message: string; to: string }) => {
       void io.to(to).emit('chat', { from, message });
-    
+
+      const [senderExists, receiverExists] = await Promise.all([
+        prisma.user.findUnique({ where: { id: from } }),
+        prisma.user.findUnique({ where: { id: to } }),
+      ]);
+      
+      if (!senderExists || !receiverExists) {
+        console.error('Sender or receiver not found:', { from, to });
+        return;
+      }
+
+      console.log('New message:', { from, message, to })
+      console.log('Sender:', senderExists)
+      console.log('Receiver:', receiverExists)
+      
       await prisma.message.create({
         data: {
           content: message,

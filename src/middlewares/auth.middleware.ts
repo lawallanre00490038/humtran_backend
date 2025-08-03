@@ -1,12 +1,15 @@
 // middlewares/auth.ts
 import { NextFunction, Request, Response } from 'express';
+import { RequestHandler } from 'express';
 
 import { verifyToken } from '../utils/auth';
 
-export const requireAuth = (roles: string[] = []) => {
+export const requireAuth = (roles: string[] = []): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
 
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+    const token = tokenFromHeader ?? req.cookies.token as string;
     if (!token) return res.status(401).json({ error: 'No token' });
 
     try {

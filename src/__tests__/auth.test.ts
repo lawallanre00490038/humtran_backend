@@ -38,11 +38,20 @@ describe('Email and Password Validation', () => {
 
 describe('Auth Endpoints', () => {
   beforeAll(async () => {
+    await prisma.emergencyRequest.deleteMany();
+    await prisma.message.deleteMany();
+    await prisma.securityAgent.deleteMany();
+
     await prisma.user.deleteMany(); // clear before test
   });
 
   afterAll(async () => {
     await prisma.user.deleteMany(); // clean up
+
+    await prisma.message.deleteMany();
+    await prisma.securityAgent.deleteMany();
+    await prisma.user.deleteMany();
+    
     await prisma.$disconnect();
   });
 

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 
 import { Role } from "../generated/prisma"
@@ -6,20 +6,21 @@ import prisma from '../lib/prismaClient';
 import { ApiResponsePayload, LoginPayload, RegisterPayload } from '../types/auth.types';
 import { comparePasswords, generateToken, hashPassword, verifyToken } from '../utils/auth';
 
-export const register = async (req: Request<object, object, RegisterPayload>, res: Response<ApiResponsePayload>) => {
+export const register = async (
+  req: Request<unknown, unknown, RegisterPayload>,
+  res: Response<ApiResponsePayload>
+) => {
   const { email, name, password, phone, role } = req.body;
 
   if (!email && !phone) {
-    res.status(400).json({
+    return res.status(400).json({
       error: "Invalid credentials",
       message: "Email or phone is required",
-    } satisfies ApiResponsePayload)
+    });
   }
 
   const existingUser = await prisma.user.findFirst({
-    where: {
-      OR: [{ email }, { phone }],
-    },
+    where: { OR: [{ email }, { phone }] },
   });
 
   if (existingUser) {
@@ -29,40 +30,51 @@ export const register = async (req: Request<object, object, RegisterPayload>, re
   const hashed = await hashPassword(password);
 
   const user = await prisma.user.create({
-    data: { email, name, password: hashed, phone, role: Role.USER },
+    data: { email, name, password: hashed, phone, role: role as Role },
   });
 
-  // Attach SecurityAgent if role is SECURITY
+  let securityAgent = null;
   if (role === Role.SECURITY) {
-    await prisma.securityAgent.create({
-      data: { lat: 0, lng: 0, name,  userId: user.id },
+    securityAgent = await prisma.securityAgent.create({
+      data: { lat: 0, lng: 0, name, userId: user.id },
     });
+
+    console.log("The created security agent is", securityAgent)
   }
 
+  const tokenPayload = {
+    agentId: securityAgent?.id ?? '',
+    email: user.email ?? '',
+    id: user.id,
+    name: user.name,
+    role: user.role,
+  };
 
-  res.cookie('token', generateToken({ email: user.email ?? '', id: user.id, name: user.name, role: user.role }), {
+  const token = generateToken(tokenPayload);
+
+  res.cookie('token', token, {
     httpOnly: true,
     maxAge: 2 * 24 * 60 * 60 * 1000,
   });
 
-   res.json({
+  res.json({
     message: 'Registration successful.',
-    token: generateToken({ email: user.email ?? '', id: user.id, name: user.name, role: user.role }), // Add this
-  } satisfies ApiResponsePayload);
-  
+    token,
+  });
 };
 
 
 
-export const login = async (req: Request<object, object, LoginPayload>, res: Response<ApiResponsePayload>) => {
+
+export const login = async (
+  req: Request<unknown, unknown, LoginPayload>,
+  res: Response<ApiResponsePayload>
+) => {
   const { identifier, password } = req.body;
 
   const user = await prisma.user.findFirst({
     where: {
-      OR: [
-        { email: identifier },
-        { phone: identifier }
-      ]
+      OR: [{ email: identifier }, { phone: identifier }],
     },
   });
 
@@ -70,23 +82,43 @@ export const login = async (req: Request<object, object, LoginPayload>, res: Res
     return res.status(400).json({ error: 'Invalid credentials' });
   }
 
-  res.cookie('token', generateToken({ email: user.email ?? '', id: user.id, name: user.name, role: user.role }), {
+  console.log("The user from login is", user)
+
+  let securityAgent = null;
+  if (user.role === Role.SECURITY) {
+    securityAgent = await prisma.securityAgent.findFirst({
+      where: { userId: user.id },
+    });
+  }
+
+  const tokenPayload = {
+    agentId: securityAgent?.id ?? '',
+    email: user.email ?? '',
+    id: user.id,
+    name: user.name,
+    role: user.role,
+  };
+
+  console.log("The token payload from login is", tokenPayload)
+
+  const token = generateToken(tokenPayload);
+
+  res.cookie('token', token, {
     httpOnly: true,
     maxAge: 2 * 24 * 60 * 60 * 1000,
   });
 
   res.json({
     message: 'Login successful.',
-    token: generateToken({ email: user.email ?? '', id: user.id, name: user.name, role: user.role }), // Add this
-  } satisfies ApiResponsePayload);
-  
+    token,
+  });
 };
 
 
 
 
 
-export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+export const getCurrentUser = async (req: Request, res: Response) => {
 
   const authHeader = req.headers.authorization;
   const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
@@ -97,6 +129,8 @@ export const getCurrentUser = async (req: Request, res: Response, next: NextFunc
 
   try {
     const decoded = verifyToken(token);
+
+    console.log("The decoded token is", decoded)
 
     if (typeof decoded === 'string' || !('id' in decoded)) {
       return res.status(401).json({ error: 'Invalid token payload' });
@@ -110,8 +144,15 @@ export const getCurrentUser = async (req: Request, res: Response, next: NextFunc
       return res.status(401).json({ error: 'Invalid token' });
     }
 
-    res.json({ user });
-    next();
+    const agent = decoded.agentId
+      ? await prisma.securityAgent.findUnique({ where: { userId: decoded.id } })
+      : null;
+
+    res.json({
+      agent,
+      user,
+    });
+
   } catch (error) {
     console.error(error);
     return res.status(401).json(

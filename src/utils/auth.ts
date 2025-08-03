@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 interface JWTPayload {
+  agentId?: string;
   email: string;
   exp: number;
   iat: number;
