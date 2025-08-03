@@ -17,7 +17,7 @@ const router: Router = express.Router();
  * /api/emergency:
  *   post:
  *     summary: User requests emergency help
- *     description: User requests emergency help by providing location and type of emergency. Requires a valid JWT token in the `Authorization` header.
+ *     description: User requests emergency help by providing location and type of emergency. Requires the valid JWT bearer token in the `Authorization` header.
  *     tags: [Emergency]
  *     security:
  *       - bearerAuth: []

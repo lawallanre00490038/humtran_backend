@@ -110,7 +110,7 @@ const router: Router = express.Router();
  * /api/auth/me:
  *   get:
  *     summary: Get authenticated user's profile
- *     description: Get authenticated user's profile. Requires a valid JWT token in the `Authorization` header.
+ *     description: Get authenticated user's profile. Requires a valid JWT bearer token in the `Authorization` header.
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []

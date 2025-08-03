@@ -19,7 +19,7 @@ const router: Router = Router();
  * /api/update-agent-location:
  *   post:
  *     summary: Update agent location
- *     description: Update agent location, Ensure you pass the authentication token in the header.
+ *     description: Update agent location, Ensure you pass the valid JWT bearer token in the `Authorization` header.
  *     tags: [Update Agent Location]
  *     security:
  *       - bearerAuth: []
