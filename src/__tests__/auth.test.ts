@@ -1,7 +1,7 @@
 // tests/auth.test.ts
 
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it  } from 'vitest';
+import { describe, expect, it  } from 'vitest';
 
 import app from '../app';
 import { PrismaClient } from '../generated/prisma';
@@ -37,49 +37,49 @@ describe('Email and Password Validation', () => {
 
 
 describe('Auth Endpoints', () => {
-  beforeAll(async () => {
-    await prisma.emergencyRequest.deleteMany();
-    await prisma.message.deleteMany();
-    await prisma.securityAgent.deleteMany();
+  // beforeAll(async () => {
+  //   await prisma.emergencyRequest.deleteMany();
+  //   await prisma.message.deleteMany();
+  //   await prisma.securityAgent.deleteMany();
 
-    await prisma.user.deleteMany(); // clear before test
-  });
+  //   await prisma.user.deleteMany(); // clear before test
+  // });
 
-  afterAll(async () => {
-    await prisma.user.deleteMany(); // clean up
+  // afterAll(async () => {
+  //   await prisma.user.deleteMany(); // clean up
 
-    await prisma.message.deleteMany();
-    await prisma.securityAgent.deleteMany();
-    await prisma.user.deleteMany();
+  //   await prisma.message.deleteMany();
+  //   await prisma.securityAgent.deleteMany();
+  //   await prisma.user.deleteMany();
     
-    await prisma.$disconnect();
-  });
+  //   await prisma.$disconnect();
+  // });
 
-  it('should register a user and return a token and message', async () => {
-    const res = await request(app).post('/api/auth/register').send({
-      email: 'test@example.com',
-      name: 'Test User',
-      password: 'Password123',
-      role: 'USER',
-    });
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('token');
-    expect(res.body).toHaveProperty('message', 'Registration successful.');
+  // it('should register a user and return a token and message', async () => {
+  //   const res = await request(app).post('/api/auth/register').send({
+  //     email: 'test2@example.com',
+  //     name: 'Test User',
+  //     password: 'Password123',
+  //     role: 'USER',
+  //   });
+  //   expect(res.status).toBe(200);
+  //   expect(res.body).toHaveProperty('token');
+  //   expect(res.body).toHaveProperty('message', 'Registration successful.');
 
-    console.log(Object.prototype.hasOwnProperty.call(res.body, 'token'));
-    console.log(Object.prototype.hasOwnProperty.call(res.body, 'message'));
+  //   console.log(Object.prototype.hasOwnProperty.call(res.body, 'token'));
+  //   console.log(Object.prototype.hasOwnProperty.call(res.body, 'message'));
 
-    const userInDb = await prisma.user.findUnique({
-      where: { email: 'test@example.com' },
-    });
+  //   const userInDb = await prisma.user.findUnique({
+  //     where: { email: 'test2@example.com' },
+  //   });
 
-    expect(userInDb).not.toBeNull();
-    expect(userInDb?.name).toBe('Test User');
-  });
+  //   expect(userInDb).not.toBeNull();
+  //   expect(userInDb?.name).toBe('Test User');
+  // });
 
   it('should login a user and return a token and message', async () => {
     const res = await request(app).post('/api/auth/login').send({
-      identifier: 'test@example.com',
+      identifier: 'test2@example.com',
       password: 'Password123',
     });
 

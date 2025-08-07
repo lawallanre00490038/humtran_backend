@@ -38,10 +38,11 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  emergencies   EmergencyRequest[]
-  securityAgent SecurityAgent?
-  messagesSent  Message[]          @relation("SenderMessages")
-  messagesRecv  Message[]          @relation("ReceiverMessages")
+  chatParticipants ChatParticipant[]
+  emergencies      EmergencyRequest[]
+  securityAgent    SecurityAgent?
+  messagesSent     Message[]          @relation("SenderMessages")
+  messagesRecv     Message[]          @relation("ReceiverMessages")
 
   callsMade     CallLog[] @relation("MadeCalls")
   callsReceived CallLog[] @relation("ReceivedCalls")
@@ -67,12 +68,32 @@ model SecurityAgent {
   name        String
   lat         Float
   lng         Float
+  role        Role           @default(SECURITY)
   userId      String         @unique
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   lastUpdated DateTime       @updatedAt
   status      SecurityStatus @default(OFF_LINE)
 
   assignedEmergencies EmergencyRequest[] @relation("AgentAssignments")
+}
+
+model ChatSession {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ChatParticipant[]
+  messages     Message[]
+}
+
+model ChatParticipant {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id])
+
+  joinedAt DateTime @default(now())
 }
 
 model Message {
@@ -83,8 +104,11 @@ model Message {
 
   senderId   String
   receiverId String
-  sender     User   @relation("SenderMessages", fields: [senderId], references: [id])
-  receiver   User   @relation("ReceiverMessages", fields: [receiverId], references: [id])
+  sessionId  String
+  session    ChatSession @relation(fields: [sessionId], references: [id])
+
+  sender   User @relation("SenderMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceiverMessages", fields: [receiverId], references: [id])
 }
 
 model CallLog {

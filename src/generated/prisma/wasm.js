@@ -149,9 +149,23 @@ exports.Prisma.SecurityAgentScalarFieldEnum = {
   name: 'name',
   lat: 'lat',
   lng: 'lng',
+  role: 'role',
   userId: 'userId',
   lastUpdated: 'lastUpdated',
   status: 'status'
+};
+
+exports.Prisma.ChatSessionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ChatParticipantScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sessionId: 'sessionId',
+  joinedAt: 'joinedAt'
 };
 
 exports.Prisma.MessageScalarFieldEnum = {
@@ -160,7 +174,8 @@ exports.Prisma.MessageScalarFieldEnum = {
   type: 'type',
   createdAt: 'createdAt',
   senderId: 'senderId',
-  receiverId: 'receiverId'
+  receiverId: 'receiverId',
+  sessionId: 'sessionId'
 };
 
 exports.Prisma.CallLogScalarFieldEnum = {
@@ -213,6 +228,8 @@ exports.Prisma.ModelName = {
   User: 'User',
   EmergencyRequest: 'EmergencyRequest',
   SecurityAgent: 'SecurityAgent',
+  ChatSession: 'ChatSession',
+  ChatParticipant: 'ChatParticipant',
   Message: 'Message',
   CallLog: 'CallLog'
 };

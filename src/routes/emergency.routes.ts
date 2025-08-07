@@ -1,6 +1,8 @@
 import express, { Router } from 'express';
 
+import { getEmergencyTypes } from '../controllers/emergency.controller';
 import { assignAgent, requestHelp } from '../controllers/emergency.controller';
+import { getSecuritiesWithLocation } from '../controllers/securities.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router: Router = express.Router();
@@ -16,8 +18,8 @@ const router: Router = express.Router();
  * @swagger
  * /api/emergency:
  *   post:
- *     summary: User requests emergency help
- *     description: User requests emergency help by providing location and type of emergency. Requires the valid JWT bearer token in the `Authorization` header.
+ *     summary: User requests emergency help. When a new emergency is requested, previous chat sessions involving the user are deleted.
+ *     description: User requests emergency help by providing location and type of emergency. Requires the valid JWT bearer token in the `Authorization` header like `Bearer <token>`.
  *     tags: [Emergency]
  *     security:
  *       - bearerAuth: []
@@ -54,7 +56,7 @@ const router: Router = express.Router();
  * /api/emergency/assign:
  *   post:
  *     summary: Admin assigns a security agent to an emergency
- *     description: Admin assigns a security agent to an emergency by providing emergencyId and agentId. Requires a valid JWT token in the `Authorization` header.
+ *     description: Admin assigns a security agent to an emergency by providing emergencyId and agentId. Requires a valid JWT token in the `Authorization` header like `Bearer <token>`.
  *     tags: [Emergency]
  *     security:
  *       - bearerAuth: []
@@ -76,8 +78,38 @@ const router: Router = express.Router();
  *         description: Unauthorized
  */
 
+/**
+ * @swagger
+ * /api/emergency/types:
+ *   get:
+ *     summary: Get all available emergency types
+ *     description: Get all available emergency types.
+ *     tags: [Emergency]
+ *     responses:
+ *       200:
+ *         description: Array of emergency types
+ *       401:
+ *         description: Unauthorized
+ * */
+
+/**
+ * @swagger
+ * /api/emergency/securities-and-locations:
+ *   get:
+ *     summary: Get all available security agents with their locations
+ *     description: Get all available security agents with their locations. Requires a valid JWT token in the `Authorization` header like `Bearer <token>`.
+ *     tags: [Emergency]
+ *     responses:
+ *       200:
+ *         description: Array of security agents with their locations
+ *       401:
+ *         description: Unauthorized
+ * */
+
 router.post('/', requireAuth(['USER']), requestHelp);
 router.post('/assign', requireAuth(['USER']), assignAgent);
+router.get('/types', getEmergencyTypes);  
+router.get('/securities-and-locations', requireAuth(['USER']), getSecuritiesWithLocation);
 
 export default router;
 

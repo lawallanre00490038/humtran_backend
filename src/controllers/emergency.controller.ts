@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 
+import { EMERGENCY_TYPES } from '../constants/emergencyTypes';
 import { EmergencyStatus } from '../generated/prisma'
 import prisma from '../lib/prismaClient';
 import {io} from "../server"
@@ -10,6 +11,46 @@ import { findNearestAgent } from '../utils/geo';
 export const requestHelp = async (req: Request, res: Response) => {
   const { location, type } = req.body as { location: { lat: number; lng: number }; type: string };
   const userId = req.user.id;
+  
+
+
+  // Step 1: Delete all previous chat sessions involving this user
+  const existingSessions = await prisma.chatSession.findMany({
+    include: { participants: true },
+    where: {
+      participants: {
+        some: { userId },
+      },
+    },
+  });
+
+  const sessionIds = existingSessions.map(session => session.id);
+
+  if (sessionIds.length > 0) {
+    // Delete all messages related to these sessions (if applicable)
+    await prisma.message.deleteMany({
+      where: {
+        sessionId: { in: sessionIds },
+      },
+    });
+
+    // Delete all participants first
+    await prisma.chatParticipant.deleteMany({
+      where: {
+        sessionId: { in: sessionIds },
+      },
+    });
+
+    // Delete the sessions themselves
+    await prisma.chatSession.deleteMany({
+      where: {
+        id: { in: sessionIds },
+      },
+    });
+  }
+
+
+
 
   const emergency = await prisma.emergencyRequest.create({
     data: {
@@ -73,4 +114,11 @@ export const assignAgent = async (req: Request, res: Response) => {
   });
 
   res.json(assigned);
+};
+
+
+
+
+export const getEmergencyTypes = (_req: Request, res: Response) => {
+  return res.status(200).json({ types: EMERGENCY_TYPES });
 };

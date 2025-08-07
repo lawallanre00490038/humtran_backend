@@ -7,6 +7,7 @@ import express, { Express, Request, Response } from 'express';
 import { middleware } from "./middlewares/middlewares.js";
 import agentLocationRoutes from './routes/agentLocation.routes';
 import authRoutes from './routes/auth.routes';
+import chatRoutes from './routes/chat.routes';
 import emergencyRoutes from './routes/emergency.routes';
 import socketRoutes from './routes/socket.routes';
 import { setupSwagger } from './swagger';
@@ -31,7 +32,9 @@ app.get('/', middleware, (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/update-agent-location', agentLocationRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/docs/socket', socketRoutes)
+
 
 // Global error handler (should be after routes)
 // app.use(errorHandler);

@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../dist/generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -38,6 +38,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
+  chatParticipants ChatParticipant[]
   emergencies   EmergencyRequest[]
   securityAgent SecurityAgent?
   messagesSent  Message[]       @relation("SenderMessages")
@@ -77,16 +78,38 @@ model SecurityAgent {
   assignedEmergencies EmergencyRequest[] @relation("AgentAssignments")
 }
 
-model Message {
-  id         String   @id @default(uuid())
-  content    String
-  type       String   // "TEXT", "IMAGE", "VIDEO", "AUDIO"
-  createdAt  DateTime @default(now())
+model ChatSession {
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  senderId   String
-  receiverId String
-  sender     User     @relation("SenderMessages", fields: [senderId], references: [id])
-  receiver   User     @relation("ReceiverMessages", fields: [receiverId], references: [id])
+  participants ChatParticipant[]
+  messages     Message[]
+}
+
+model ChatParticipant {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  sessionId    String
+  session      ChatSession @relation(fields: [sessionId], references: [id])
+
+  joinedAt     DateTime @default(now())
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  content     String
+  type        String   // "TEXT", "IMAGE", "VIDEO", "AUDIO"
+  createdAt   DateTime @default(now())
+
+  senderId    String
+  receiverId  String
+  sessionId   String 
+  session     ChatSession @relation(fields: [sessionId], references: [id])
+
+  sender      User     @relation("SenderMessages", fields: [senderId], references: [id])
+  receiver    User     @relation("ReceiverMessages", fields: [receiverId], references: [id])
 }
 
 

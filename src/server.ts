@@ -40,8 +40,10 @@ export const initSocketHandlers = (io: Server) => {
       }
     });
 
-    socket.on('chat', async ({ from, message, to }: { from: string; message: string; to: string }) => {
-      void io.to(to).emit('chat', { from, message });
+    socket.on('chat', async ({ from, message, sessionId, to  }: { from: string; message: string; sessionId: string;  to: string }) => {
+      void io.to(to).emit('chat', { from, message, sessionId });
+
+      console.log('Chat message received:', { from, message, sessionId, to });
 
       const [senderExists, receiverExists] = await Promise.all([
         prisma.user.findUnique({ where: { id: from } }),
@@ -52,13 +54,33 @@ export const initSocketHandlers = (io: Server) => {
         console.error('Sender or receiver not found:', { from, to });
         return;
       }
+
+
+      const session = await prisma.chatSession.findUnique({
+        include: { participants: true },
+        where: { id: sessionId },
+        
+      });
+    
+      if (!session) {
+        console.error('Session not found');
+        return;
+      }
+    
+      const participantIds = session.participants.map((p) => p.userId);
+        if (!participantIds.includes(from) || !participantIds.includes(to)) {
+          console.error('User not in session');
+          return;
+      }
       
       await prisma.message.create({
         data: {
           content: message,
           receiverId: to,
           senderId: from,
+          sessionId: sessionId,
           type: 'TEXT',
+          
         },
       });
     });

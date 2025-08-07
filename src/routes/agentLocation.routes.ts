@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { updateAgentLocation } from '../controllers/agentLocation.controller';
+import { updateAgentLocation } from '../controllers/agentsEmergencies.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router: Router = Router();
@@ -19,7 +19,7 @@ const router: Router = Router();
  * /api/update-agent-location:
  *   post:
  *     summary: Update agent location
- *     description: Update agent location, Ensure you pass the valid JWT bearer token in the `Authorization` header.
+ *     description: Update agent location, Ensure you pass the valid JWT bearer token in the `Authorization` header like `Bearer <token>`.
  *     tags: [Update Agent Location]
  *     security:
  *       - bearerAuth: []

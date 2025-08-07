@@ -25,6 +25,10 @@
     Message:
     <input id="message" type="text" />
   </label>
+  <label>
+    Session ID:
+    <input id="sessionId" type="text" value="default-session-id" />
+  </label>
   <button onclick="sendChat()">Send Chat</button>
 
   <hr />
@@ -66,8 +70,9 @@
       const from = document.getElementById('userId').value;
       const to = document.getElementById('to').value;
       const message = document.getElementById('message').value;
-      socket.emit('chat', { from, message, to});
-      log(`Chat sent: to ${to}: "${message}"`);
+      const sessionId = document.getElementById('sessionId').value || 'default-session-id';
+      socket.emit('chat', { from, message, sessionId, to});
+      log(`Chat sent: to ${to}: "${message}" having sessionId: ${sessionId}`);
     };
 
     const sendLocation = () => {
@@ -81,7 +86,7 @@
 
     // Listen to socket events
     socket.on('chat', (msg) => {
-      log(`Received chat from ${msg.from}: "${msg.message}"`);
+      log(`Received chat from ${msg.from}: "${msg.message}" having sessionId: ${msg.sessionId}`);
     });
 
     socket.on('updated-agent-location', ({ lat, lng }) => {
