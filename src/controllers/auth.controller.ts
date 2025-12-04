@@ -159,3 +159,21 @@ export const getCurrentUser = async (req: Request, res: Response) => {
       { error: 'Invalid token' } satisfies ApiResponsePayload);
   }
 };
+
+
+
+
+export const getUserRoles =  (_req: Request, res: Response) => {
+  try {
+    // Role enum comes from Prisma (generated)
+    const roles = Object.values(Role);
+
+    return res.json({
+      message: "User roles fetched successfully",
+      roles,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Unable to fetch user roles" });
+  }
+};

@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 
-import { getCurrentUser, login, register } from '../controllers/auth.controller';
+import { getCurrentUser, getUserRoles, login, register } from '../controllers/auth.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router: Router = express.Router();
@@ -139,8 +139,32 @@ const router: Router = express.Router();
  */
 
 
+
+/**
+ * @swagger
+ * /api/auth/user_roles:
+ *   get:
+ *     summary: Get list of available user roles
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: List of roles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 roles:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     enum: [USER, SECURITY, ADMIN]
+ */
+
+
 router.post('/register', register);
 router.post('/login', login);
 router.get('/me', requireAuth(['USER', 'SECURITY']), getCurrentUser)
+router.get("/user_roles", getUserRoles);
 
 export default router;
