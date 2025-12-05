@@ -1,10 +1,17 @@
 import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 
+import { otpMailer } from '@/utils/otp';
+
 import { Role } from "../generated/prisma"
 import prisma from '../lib/prismaClient';
 import { ApiResponsePayload, LoginPayload, RegisterPayload } from '../types/auth.types';
 import { comparePasswords, generateToken, hashPassword, verifyToken } from '../utils/auth';
+
+
+
+
+
 
 export const register = async (
   req: Request<unknown, unknown, RegisterPayload>,
@@ -57,10 +64,27 @@ export const register = async (
     maxAge: 2 * 24 * 60 * 60 * 1000,
   });
 
-  res.json({
-    message: 'Registration successful.',
-    token,
-  });
+
+  try {
+    const contact = user.email ?? user.phone ?? '';
+    
+    if (contact) {
+      try {
+        await otpMailer(email ?? "")
+      } catch (err) {
+        console.error("Warning: Failed to send OTP after successful registration:", err);
+      }
+
+      res.json({
+        message: 'Registration successful. OTP Sent to mail.',
+        token,
+      });
+  
+    }
+
+  } catch (err) {
+    console.error("Failed to send OTP:", err);
+  }
 };
 
 

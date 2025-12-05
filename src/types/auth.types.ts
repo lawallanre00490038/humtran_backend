@@ -35,6 +35,15 @@ export const ErrorResponseSchema = z.object({
 export type ErrorResponsePayload = z.infer<typeof ErrorResponseSchema>;
 
 
+export const MailerResponseSchema = z.object({
+  message: z.string(),
+  token: z.string(),
+})
+export type MailerResponseSchemaPayload = z.infer<typeof MailerResponseSchema>
+
+
+
+
 export const ApiResponseSchema = z.union([SuccessResponseSchema, ErrorResponseSchema]);
 export type ApiResponsePayload = z.infer<typeof ApiResponseSchema>;
 

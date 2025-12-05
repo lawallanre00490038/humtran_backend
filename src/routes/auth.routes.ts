@@ -1,15 +1,20 @@
 import express, { Router } from 'express';
 
+// Ensure all controller functions, including the new ones, are imported.
+import { resendOtp, verifyOtp } from '@/controllers/otm.controller';
+
 import { getCurrentUser, getUserRoles, login, register } from '../controllers/auth.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
+
 const router: Router = express.Router();
+
 
 /**
  * @swagger
  * tags:
- *   name: Auth
- *   description: Authentication endpoints
+ *   - name: Auth
+ *     description: Authentication endpoints
  */
 
 /**
@@ -57,8 +62,8 @@ const router: Router = express.Router();
  *               properties:
  *                 token:
  *                   type: string
- *                 message: 
- *                    type: string
+ *                 message:
+ *                   type: string
  *       400:
  *         description: Email or phone already exists or validation error
  */
@@ -97,20 +102,95 @@ const router: Router = express.Router();
  *               properties:
  *                 token:
  *                   type: string
- *                 message: 
- *                    type: string    
+ *                 message:
+ *                   type: string
  *       400:
  *         description: Invalid credentials
  */
 
+/**
+ * @swagger
+ * /api/auth/resend-otp:
+ *   post:
+ *     summary: Request a new One-Time Password (OTP) for verification
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - identifier
+ *             properties:
+ *               identifier:
+ *                 type: string
+ *                 description: User's email or phone number
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: OTP resent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Validation error (identifier missing or user already verified)
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server or OTP delivery error
+ */
 
+/**
+ * @swagger
+ * /api/auth/verify-otp:
+ *   post:
+ *     summary: Verify the provided One-Time Password (OTP)
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - identifier
+ *               - otp
+ *             properties:
+ *               identifier:
+ *                 type: string
+ *                 description: User's email or phone number
+ *                 example: user@example.com
+ *               otp:
+ *                 type: string
+ *                 description: The 6-digit OTP code received by the user
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Validation error (OTP expired, invalid, or missing)
+ *       404:
+ *         description: User not found
+ */
 
 /**
  * @swagger
  * /api/auth/me:
  *   get:
  *     summary: Get authenticated user's profile
- *     description: Get authenticated user's profile. Requires a valid JWT bearer token in the `Authorization` header.
+ *     description: Requires a valid JWT bearer token in the `Authorization` header
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
@@ -138,8 +218,6 @@ const router: Router = express.Router();
  *         description: Unauthorized or token missing/invalid
  */
 
-
-
 /**
  * @swagger
  * /api/auth/user_roles:
@@ -162,8 +240,11 @@ const router: Router = express.Router();
  */
 
 
+
 router.post('/register', register);
 router.post('/login', login);
+router.post('/resend-otp', resendOtp); // Added OTP resend route
+router.post('/verify-otp', verifyOtp);   // Added OTP verification route
 router.get('/me', requireAuth(['USER', 'SECURITY']), getCurrentUser)
 router.get("/user_roles", getUserRoles);
 
