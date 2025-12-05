@@ -1,9 +1,9 @@
+import {  Role } from '@prisma/client';
 import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 
 import { otpMailer } from '@/utils/otp';
 
-import { Role } from "../generated/prisma"
 import prisma from '../lib/prismaClient';
 import { ApiResponsePayload, LoginPayload, RegisterPayload } from '../types/auth.types';
 import { comparePasswords, generateToken, hashPassword, verifyToken } from '../utils/auth';

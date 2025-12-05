@@ -1,6 +1,6 @@
+import {  SecurityStatus } from '@prisma/client';
 import { Request, Response } from 'express';
 
-import { SecurityStatus } from '../generated/prisma'
 import prisma from '../lib/prismaClient'
 
 export const updateAgentLocation = async (req: Request, res: Response) => {
