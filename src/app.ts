@@ -4,13 +4,13 @@ import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
 
 // import errorHandler from './middlewares/errorHandler';
-import { middleware } from "./middlewares/middlewares.js";
-import agentLocationRoutes from './routes/agentLocation.routes';
-import authRoutes from './routes/auth.routes';
-import chatRoutes from './routes/chat.routes';
-import emergencyRoutes from './routes/emergency.routes';
-import socketRoutes from './routes/socket.routes';
-import { setupSwagger } from './swagger';
+import { middleware } from "@/middlewares/middlewares.js";
+import agentLocationRoutes from '@/routes/agentLocation.routes';
+import authRoutes from '@/routes/auth.routes';
+import chatRoutes from '@/routes/chat.routes';
+import emergencyRoutes from '@/routes/emergency.routes';
+import socketRoutes from '@/routes/socket.routes';
+import { setupSwagger } from '@/swagger';
 
 const app: Express = express();
 

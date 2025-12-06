@@ -1,10 +1,10 @@
 import {  EmergencyStatus } from '@prisma/client';
 import { Request, Response } from 'express';
 
-import { EMERGENCY_TYPES } from '../constants/emergencyTypes';
-import prisma from '../lib/prismaClient';
-import {io} from "../server"
-import { findNearestAgent } from '../utils/geo';
+import { EMERGENCY_TYPES } from '@/constants/emergencyTypes';
+import prisma from '@/lib/prismaClient';
+import {io} from "@/server"
+import { findNearestAgent } from '@/utils/geo';
 
 
 

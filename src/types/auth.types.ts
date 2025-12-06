@@ -1,6 +1,5 @@
+import { Role as RoleEnum } from  '@prisma/client';
 import { z } from 'zod';
-
-import { Role as RoleEnum } from "../generated/prisma"
 
 export const RegisterSchema = z.object({
   email: z.email().optional(),

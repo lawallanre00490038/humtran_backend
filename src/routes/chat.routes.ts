@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { getSessionMessages, startOrGetSession } from '../controllers/chat.controller';
-import { requireAuth } from '../middlewares/auth.middleware';
+import { getSessionMessages, startOrGetSession } from '@/controllers/chat.controller';
+import { requireAuth } from '@/middlewares/auth.middleware';
 
 const router: express.Router = express.Router();
 

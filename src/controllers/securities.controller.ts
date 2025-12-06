@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import prisma from '../lib/prismaClient';
+import prisma from '@/lib/prismaClient';
 
 export const getSecuritiesWithLocation = async (_req: Request, res: Response) => {
   const securities = await prisma.securityAgent.findMany({

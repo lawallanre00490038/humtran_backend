@@ -1,9 +1,9 @@
 import express, { Router } from 'express';
 
-import { getEmergencyTypes } from '../controllers/emergency.controller';
-import { assignAgent, requestHelp } from '../controllers/emergency.controller';
-import { getSecuritiesWithLocation } from '../controllers/securities.controller';
-import { requireAuth } from '../middlewares/auth.middleware';
+import { getEmergencyTypes } from '@/controllers/emergency.controller';
+import { assignAgent, requestHelp } from '@/controllers/emergency.controller';
+import { getSecuritiesWithLocation } from '@/controllers/securities.controller';
+import { requireAuth } from '@/middlewares/auth.middleware';
 
 const router: Router = express.Router();
 

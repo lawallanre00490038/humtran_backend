@@ -2,11 +2,10 @@ import {  Role } from '@prisma/client';
 import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 
+import prisma from '@/lib/prismaClient';
+import { ApiResponsePayload, LoginPayload, RegisterPayload } from '@/types/auth.types';
+import { comparePasswords, generateToken, hashPassword, verifyToken } from '@/utils/auth';
 import { otpMailer } from '@/utils/otp';
-
-import prisma from '../lib/prismaClient';
-import { ApiResponsePayload, LoginPayload, RegisterPayload } from '../types/auth.types';
-import { comparePasswords, generateToken, hashPassword, verifyToken } from '../utils/auth';
 
 
 
@@ -135,6 +134,7 @@ export const login = async (
   });
 
   res.json({
+    data: user,
     message: 'Login successful.',
     token,
   });

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { updateAgentLocation } from '../controllers/agentsEmergencies.controller';
-import { requireAuth } from '../middlewares/auth.middleware';
+import { updateAgentLocation } from '@/controllers/agentsEmergencies.controller';
+import { requireAuth } from '@/middlewares/auth.middleware';
 
 const router: Router = Router();
 

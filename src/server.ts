@@ -1,9 +1,12 @@
 // server.ts
+import 'tsconfig-paths/register';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
+import prisma from '@/lib/prismaClient';
+
 import app from './app';
-import prisma from './lib/prismaClient';
+
 
 const server = createServer(app);
 

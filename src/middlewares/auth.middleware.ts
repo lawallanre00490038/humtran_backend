@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { RequestHandler } from 'express';
 
-import { verifyToken } from '../utils/auth';
+import { verifyToken } from '@/utils/auth';
 
 export const requireAuth = (roles: string[] = []): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {

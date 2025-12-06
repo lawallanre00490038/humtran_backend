@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { findOrCreateChatSession, getMessagesBySession } from '../services/chat.service';
+import { findOrCreateChatSession, getMessagesBySession } from '@/services/chat.service';
 
 export const startOrGetSession = async (req: Request, res: Response) => {
   try {

@@ -1,10 +1,9 @@
 import express, { Router } from 'express';
 
 // Ensure all controller functions, including the new ones, are imported.
-import { resendOtp, verifyOtp } from '@/controllers/otm.controller';
-
-import { getCurrentUser, getUserRoles, login, register } from '../controllers/auth.controller';
-import { requireAuth } from '../middlewares/auth.middleware';
+import { getCurrentUser, getUserRoles, login, register } from '@/controllers/auth.controller';
+import { resendOtp, verifyOtp } from '@/controllers/otp.controller';
+import { requireAuth } from '@/middlewares/auth.middleware';
 
 
 const router: Router = express.Router();
