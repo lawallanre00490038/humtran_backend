@@ -73,8 +73,10 @@ export const register = async (
       }
 
       res.json({
+        data: user,
         message: 'Registration successful. OTP Sent to mail.',
         token,
+        
       });
   
     }
