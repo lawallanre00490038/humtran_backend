@@ -1,10 +1,24 @@
-import {  EmergencyStatus } from '@prisma/client';
+import { EmergencyStatus } from '@prisma/client';
 import { Request, Response } from 'express';
 
 import { EMERGENCY_TYPES } from '@/constants/emergencyTypes';
-import prisma from '@/lib/prismaClient';
 import {io} from "@/server"
 import { findNearestAgent } from '@/utils/geo';
+
+import prisma from '../lib/prismaClient';
+
+
+
+
+// interface AgentWithLocation {
+//   agentUserId: string;
+//   id: string;
+//   lat: number;
+//   lng: number;
+//   location: { lat: number; lng: number };
+//   userId: string;
+// }
+
 
 
 
@@ -12,6 +26,7 @@ export const requestHelp = async (req: Request, res: Response) => {
   const { location, type } = req.body as { location: { lat: number; lng: number }; type: string };
   const userId = req.user.id;
   
+
 
 
   // Step 1: Delete all previous chat sessions involving this user
@@ -24,7 +39,7 @@ export const requestHelp = async (req: Request, res: Response) => {
     },
   });
 
-  const sessionIds = existingSessions.map(session => session.id);
+  const sessionIds = existingSessions.map((session: typeof existingSessions[number])=> session.id);
 
   if (sessionIds.length > 0) {
     // Delete all messages related to these sessions (if applicable)
@@ -64,7 +79,7 @@ export const requestHelp = async (req: Request, res: Response) => {
 
   const agents = await prisma.securityAgent.findMany();
   console.log("All the agents: ", agents)
-  const agentsWithLocation = agents.map(agent => ({
+  const agentsWithLocation = agents.map(agent=> ({
     ...agent,
     agentUserId: agent.userId,
     location: { lat: agent.lat, lng: agent.lng }

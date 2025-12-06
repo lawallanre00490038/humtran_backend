@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 
-import prisma from '@/lib/prismaClient';
 import { ApiResponsePayload } from '@/types/auth.types';
 import { generateOtp, otpExpiry, otpMailer } from '@/utils/otp';
 
-
+import prisma from '../lib/prismaClient';
 
 
 interface ResendOtpPayload {
