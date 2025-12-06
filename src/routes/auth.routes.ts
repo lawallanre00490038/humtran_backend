@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 
 // Ensure all controller functions, including the new ones, are imported.
-import { getCurrentUser, getUserRoles, login, register } from '@/controllers/auth.controller';
+import { getCurrentUser, getUserRoles, login, register, updateUserRole } from '@/controllers/auth.controller';
 import { resendOtp, verifyOtp } from '@/controllers/otp.controller';
 import { requireAuth } from '@/middlewares/auth.middleware';
 
@@ -240,11 +240,53 @@ const router: Router = express.Router();
 
 
 
+/**
+ * @openapi
+ * /api/auth/update-role/{userId}:
+ *   patch:
+ *     summary: Update a user's role
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 example: SECURITY
+ *             required:
+ *               - role
+ *     responses:
+ *       200:
+ *         description: Role updated successfully
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized (missing/invalid token)
+ *       403:
+ *         description: Forbidden (not an admin)
+ *       404:
+ *         description: User not found
+ */
+
+
 router.post('/register', register);
 router.post('/login', login);
 router.post('/resend-otp', resendOtp); // Added OTP resend route
 router.post('/verify-otp', verifyOtp);   // Added OTP verification route
-router.get('/me', requireAuth(['USER', 'SECURITY']), getCurrentUser)
+router.get('/me', requireAuth(['USER', 'SECURITY', 'ADMIN']), getCurrentUser)
+router.patch("/update-role/:userId", requireAuth(['USER', 'SECURITY', 'ADMIN']), updateUserRole);
 router.get("/user_roles", getUserRoles);
 
 export default router;

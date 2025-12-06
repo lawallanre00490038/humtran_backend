@@ -49,6 +49,6 @@ const router: Router = Router();
 
 
 
-router.post('/', requireAuth(['SECURITY']),  updateAgentLocation);
+router.post('/', requireAuth(['SECURITY', 'USER', 'ADMIN']),  updateAgentLocation);
 
 export default router;

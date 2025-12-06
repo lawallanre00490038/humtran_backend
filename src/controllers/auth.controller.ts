@@ -186,6 +186,67 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 
 
 
+export const updateUserRole = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const role = (req.body as { role?: unknown }).role;
+
+    // Validate role
+    if (typeof role !== "string" || !Object.values(Role).includes(role as Role)) {
+      return res.status(400).json({
+        error: "Invalid role",
+        message: `Role must be one of: ${Object.values(Role).join(", ")}`,
+      });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    // Update user role
+    const updatedUser = await prisma.user.update({
+      data: { role: role as Role },
+      where: { id: userId },
+      
+    });
+
+    // Handle securityAgent creation/removal
+    if (role === Role.SECURITY) {
+      // ensure agent record exists
+      await prisma.securityAgent.upsert({
+        create: {
+          lat: 0,
+          lng: 0,
+          name: updatedUser.name,
+          status: "ON_LINE",
+          userId,
+        },
+        update: {},
+        where: { userId },
+      });
+    } else {
+      // remove agent if role changed away from SECURITY
+      await prisma.securityAgent.deleteMany({
+        where: { userId },
+      });
+    }
+    return res.json({
+      data: updatedUser,
+      message: "User role updated successfully",
+    });
+  } catch (error) {
+    console.error("Failed to update role:", error);
+    return res.status(500).json({
+      error: "Failed to update role",
+    });
+  }
+};
+
+
 
 export const getUserRoles =  (_req: Request, res: Response) => {
   try {

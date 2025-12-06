@@ -15,5 +15,7 @@
 # Test coverage
 /coverage
 
+test_socket.ts
+
 MYREADME.md
 /src/generated/

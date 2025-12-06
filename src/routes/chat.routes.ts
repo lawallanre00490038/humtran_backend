@@ -35,7 +35,7 @@ const router: express.Router = express.Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Message'
+ *                 $ref: '#/components/schemas/ChatMessageResponse'
  *       404:
  *         description: Session not found
  *       500:
