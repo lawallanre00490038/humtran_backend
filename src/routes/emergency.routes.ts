@@ -106,7 +106,7 @@ const router: Router = express.Router();
  *         description: Unauthorized
  * */
 
-router.post('/', requireAuth(['USER', 'SECURITY']), requestHelp);
+router.post('/', requireAuth(['USER']), requestHelp);
 router.post('/assign', requireAuth(['USER', 'SECURITY']), assignAgent);
 router.get('/types', getEmergencyTypes);  
 router.get('/securities-and-locations', requireAuth(['USER', 'SECURITY']), getSecuritiesWithLocation);

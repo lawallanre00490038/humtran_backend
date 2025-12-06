@@ -23,8 +23,19 @@ import prisma from '../lib/prismaClient';
 
 
 export const requestHelp = async (req: Request, res: Response) => {
-  const { location, type } = req.body as { location: { lat: number; lng: number }; type: string };
+  const { location, type } = req.body as { location?: { lat: number; lng: number }; type?: string };
+
+  if (!location) {
+    return res.status(400).json({ message: "Missing location in request body. Please include location" });
+  }
+
+  if (!type) {
+    return res.status(400).json({ message: "Missing  type in request body. Please include type" });
+  }
+
   const userId = req.user.id;
+
+  console.log(userId, "This is the UserID\n\n")
   
 
 
