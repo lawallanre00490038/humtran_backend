@@ -1,4 +1,4 @@
-import {  Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 
@@ -6,10 +6,6 @@ import prisma from '@/lib/prismaClient';
 import { ApiResponsePayload, LoginPayload, RegisterPayload } from '@/types/auth.types';
 import { comparePasswords, generateToken, hashPassword, verifyToken } from '@/utils/auth';
 import { otpMailer } from '@/utils/otp';
-
-
-
-
 
 
 export const register = async (
@@ -189,7 +185,6 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 
 export const getUserRoles =  (_req: Request, res: Response) => {
   try {
-    // Role enum comes from Prisma (generated)
     const roles = Object.values(Role);
 
     return res.json({

@@ -1,4 +1,4 @@
-import { Role as RoleEnum } from  '@prisma/client';
+import {Role}  from  '@prisma/client';
 import { z } from 'zod';
 
 export const RegisterSchema = z.object({
@@ -6,7 +6,7 @@ export const RegisterSchema = z.object({
   name: z.string(),
   password: z.string().min(6),
   phone: z.string().optional(),
-  role: z.enum(Object.values(RoleEnum)),
+  role: z.enum(Object.values(Role)),
 });
 export type RegisterPayload = z.infer<typeof RegisterSchema>;
 
