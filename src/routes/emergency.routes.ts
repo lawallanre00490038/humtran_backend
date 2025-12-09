@@ -164,12 +164,12 @@ const router: Router = express.Router();
 
 
 
-router.post('/', requireAuth(['USER']), requestHelp);
-router.post('/assign', requireAuth(['USER', 'SECURITY']), assignAgent);
+router.post('/', requireAuth(['USER', 'ADMIN']), requestHelp);
+router.post('/assign', requireAuth(['USER', 'SECURITY', 'ADMIN']), assignAgent);
 router.get('/types', getEmergencyTypes);  
 router.get('/all', requireAuth(['USER', 'SECURITY', 'ADMIN']), getAllEmergencies);
 router.delete( "/:emergencyId", requireAuth(["USER", "SECURITY", "ADMIN"]),deleteEmergency);
-router.get('/securities-and-locations', requireAuth(['USER', 'SECURITY']), getSecuritiesWithLocation);
+router.get('/securities-and-locations', requireAuth(['USER', 'SECURITY', 'ADMIN']), getSecuritiesWithLocation);
 
 export default router;
 
