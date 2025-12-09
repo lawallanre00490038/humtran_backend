@@ -261,3 +261,32 @@ export const getUserRoles =  (_req: Request, res: Response) => {
     return res.status(500).json({ error: "Unable to fetch user roles" });
   }
 };
+
+
+
+
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    
+    const role = req.user.role;
+
+    if (role !== Role.ADMIN) {
+      return res.status(403).json({ error: "Only admin can access this resource" });
+    }
+
+    const users = await prisma.user.findMany({
+      include: {
+        securityAgent: true, // optional
+      },
+    });
+
+    return res.json({
+      data: users,
+      message: "Users fetched successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({ error: "Failed to fetch users" });
+  }
+};

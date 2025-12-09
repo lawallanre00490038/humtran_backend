@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 
-import { getEmergencyTypes } from '@/controllers/emergency.controller';
+import { deleteEmergency, getAllEmergencies, getEmergencyTypes } from '@/controllers/emergency.controller';
 import { assignAgent, requestHelp } from '@/controllers/emergency.controller';
 import { getSecuritiesWithLocation } from '@/controllers/securities.controller';
 import { requireAuth } from '@/middlewares/auth.middleware';
@@ -106,9 +106,69 @@ const router: Router = express.Router();
  *         description: Unauthorized
  * */
 
+
+
+/**
+ * @swagger
+ * /api/emergency/all:
+ *   get:
+ *     summary: Get all emergencies (admin + security + user)
+ *     description: 
+ *       Returns a list of all emergency records.  
+ *       - ADMIN can see all emergencies  
+ *       - SECURITY sees emergencies assigned to them  
+ *       - USER sees emergencies they created  
+ *     tags: [Emergency]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of emergency records
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden — user does not have required role
+ */
+
+
+
+/**
+ * @swagger
+ * /api/emergency/{emergencyId}:
+ *   delete:
+ *     summary: Delete a specific emergency
+ *     description: 
+ *       Deletes a specific emergency. Only the ADMIN or the user who created the emergency can delete it.
+ *     tags: [Emergency]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: emergencyId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the emergency to delete
+ *     responses:
+ *       200:
+ *         description: Emergency deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Emergency not found
+ */
+
+
+
+
+
 router.post('/', requireAuth(['USER']), requestHelp);
 router.post('/assign', requireAuth(['USER', 'SECURITY']), assignAgent);
 router.get('/types', getEmergencyTypes);  
+router.get('/all', requireAuth(['USER', 'SECURITY', 'ADMIN']), getAllEmergencies);
+router.delete( "/:emergencyId", requireAuth(["USER", "SECURITY", "ADMIN"]),deleteEmergency);
 router.get('/securities-and-locations', requireAuth(['USER', 'SECURITY']), getSecuritiesWithLocation);
 
 export default router;

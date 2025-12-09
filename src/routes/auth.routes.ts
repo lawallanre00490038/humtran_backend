@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 
 // Ensure all controller functions, including the new ones, are imported.
-import { getCurrentUser, getUserRoles, login, register, updateUserRole } from '@/controllers/auth.controller';
+import { getAllUsers, getCurrentUser, getUserRoles, login, register, updateUserRole } from '@/controllers/auth.controller';
 import { resendOtp, verifyOtp } from '@/controllers/otp.controller';
 import { requireAuth } from '@/middlewares/auth.middleware';
 
@@ -281,11 +281,65 @@ const router: Router = express.Router();
  */
 
 
+
+
+/**
+ * @swagger
+ * /api/auth/users/all:
+ *   get:
+ *     summary: Get all registered users (Admin only)
+ *     description: |
+ *       Fetches a list of all users in the system.
+ *       Only ADMIN users can access this endpoint.
+ *       Requires a valid JWT token in the Authorization header in the format: Bearer <token>.
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Array of user objects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                         nullable: true
+ *                       phone:
+ *                         type: string
+ *                         nullable: true
+ *                       role:
+ *                         type: string
+ *                       isOnline:
+ *                         type: boolean
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized — missing or invalid token
+ *       403:
+ *         description: Forbidden — user is not an admin
+ */
+
+
+
+
 router.post('/register', register);
 router.post('/login', login);
 router.post('/resend-otp', resendOtp); // Added OTP resend route
 router.post('/verify-otp', verifyOtp);   // Added OTP verification route
 router.get('/me', requireAuth(['USER', 'SECURITY', 'ADMIN']), getCurrentUser)
+router.get("/users/all", getAllUsers);
 router.patch("/update-role/:userId", requireAuth(['USER', 'SECURITY', 'ADMIN']), updateUserRole);
 router.get("/user_roles", getUserRoles);
 

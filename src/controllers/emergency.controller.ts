@@ -148,3 +148,97 @@ export const assignAgent = async (req: Request, res: Response) => {
 export const getEmergencyTypes = (_req: Request, res: Response) => {
   return res.status(200).json({ types: EMERGENCY_TYPES });
 };
+
+
+
+
+
+
+
+
+export const getAllEmergencies = async (req: Request, res: Response) => {
+  const role = req.user.role;
+  const userId = req.user.id;
+   // USER or SECURITY
+
+  try {
+    let emergencies;
+
+    if (role === "USER") {
+      // User: get emergencies they requested
+      emergencies = await prisma.emergencyRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        where: { userId },
+        
+      });
+
+    } else if (role === "SECURITY") {
+      // Agent: get emergencies assigned to them
+      emergencies = await prisma.emergencyRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        where: { securityId: userId },
+        
+      });
+
+    } else {
+      return res.status(403).json({
+        message: "Role not supported for this endpoint",
+      });
+    }
+
+    return res.status(200).json({
+      emergencies,
+      message: "Emergencies fetched successfully",
+      
+    });
+
+  } catch (error) {
+    console.error("Error fetching emergencies:", error);
+    return res.status(500).json({
+      error,
+      message: "Server error",
+      
+    });
+  }
+};
+
+
+
+
+
+export const deleteEmergency = async (req: Request, res: Response) => {
+  try {
+    const { emergencyId } = req.params;
+
+    const userId = req.user.id;
+    const role = req.user.role;
+
+    // Fetch the emergency first
+    const emergency = await prisma.emergencyRequest.findUnique({
+      where: { id: emergencyId },
+    });
+
+    if (!emergency) {
+      return res.status(404).json({ error: "Emergency not found" });
+    }
+
+    // Only admin or the user who created the emergency can delete
+    if (role !== "ADMIN" && emergency.userId !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    // Delete emergency
+    await prisma.emergencyRequest.delete({
+      where: { id: emergencyId },
+    });
+
+    return res.json({
+      emergencyId,
+      message: "Emergency deleted successfully",
+      
+    });
+  } catch (error) {
+    console.error("Failed to delete emergency:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
