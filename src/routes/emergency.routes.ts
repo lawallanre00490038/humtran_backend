@@ -171,6 +171,7 @@ router.get('/all', requireAuth(['USER', 'SECURITY', 'ADMIN']), getAllEmergencies
 router.delete( "/:emergencyId", requireAuth(["USER", "SECURITY", "ADMIN"]),deleteEmergency);
 router.get('/securities-and-locations', requireAuth(['USER', 'SECURITY', 'ADMIN']), getSecuritiesWithLocation);
 
+
 export default router;
 
 

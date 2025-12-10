@@ -180,9 +180,12 @@ export const getAllEmergencies = async (req: Request, res: Response) => {
         
       });
 
-    } else {
-      return res.status(403).json({
-        message: "Role not supported for this endpoint",
+    } else if (role === "ADMIN") {
+      // Agent: get emergencies assigned to them
+      emergencies = await prisma.emergencyRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        // where: { securityId: userId },
+        
       });
     }
 
