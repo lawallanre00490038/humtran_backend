@@ -15,6 +15,7 @@ enum Role {
 
 enum EmergencyStatus {
   PENDING
+  EN_ROUTE
   ASSIGNED
   ARRIVED
   COMPLETED

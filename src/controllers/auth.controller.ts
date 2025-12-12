@@ -2,11 +2,13 @@ import { Role } from '@prisma/client';
 import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 
+import SecurityAgent  from '@/lib/prismaClient';
 import { ApiResponsePayload, LoginPayload, RegisterPayload } from '@/types/auth.types';
 import { comparePasswords, generateToken, hashPassword, verifyToken } from '@/utils/auth';
 import { otpMailer } from '@/utils/otp';
 
 import prisma from '../lib/prismaClient';
+
 
 
 
@@ -143,18 +145,16 @@ export const login = async (
 
 
 export const getCurrentUser = async (req: Request, res: Response) => {
-
   const authHeader = req.headers.authorization;
   const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
-  const token = tokenFromHeader ?? req.cookies.token as string;
+  const token = tokenFromHeader ?? (req.cookies.token as string);
+
   if (!token) { 
     return res.status(401).json({ error: 'Token is missing' });
   }
 
   try {
     const decoded = verifyToken(token);
-
-    console.log("The decoded token is", decoded)
 
     if (typeof decoded === 'string' || !('id' in decoded)) {
       return res.status(401).json({ error: 'Invalid token payload' });
@@ -168,10 +168,20 @@ export const getCurrentUser = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid token' });
     }
 
-    const agent = decoded.agentId
-      ? await prisma.securityAgent.findUnique({ where: { userId: decoded.id } })
-      : null;
-
+    let agent:  null | SecurityAgent = null;
+    if (decoded.role === 'SECURITY') {
+      agent = await prisma.securityAgent.findUnique({
+        select: {
+          id: true,
+          lat: true,
+          lng: true,
+          name: true,
+          status: true,
+        },
+        where: { userId: decoded.id },
+        
+      });
+    }
     res.json({
       agent,
       user,
@@ -179,8 +189,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error(error);
-    return res.status(401).json(
-      { error: 'Invalid token' } satisfies ApiResponsePayload);
+    return res.status(401).json({ error: 'Invalid token' });
   }
 };
 
