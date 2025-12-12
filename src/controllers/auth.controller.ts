@@ -1,8 +1,8 @@
 import { Role } from '@prisma/client';
+import { SecurityAgent as SecurityAgentType } from '@prisma/client';
 import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 
-import SecurityAgent  from '@/lib/prismaClient';
 import { ApiResponsePayload, LoginPayload, RegisterPayload } from '@/types/auth.types';
 import { comparePasswords, generateToken, hashPassword, verifyToken } from '@/utils/auth';
 import { otpMailer } from '@/utils/otp';
@@ -168,7 +168,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid token' });
     }
 
-    let agent:  null | SecurityAgent = null;
+    let agent: null  | SecurityAgentType= null;
     if (decoded.role === 'SECURITY') {
       agent = await prisma.securityAgent.findUnique({
         select: {

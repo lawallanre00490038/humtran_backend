@@ -336,6 +336,7 @@ export const updateEmergencyStatus = async (req: Request, res: Response) => {
     EmergencyStatus.EN_ROUTE,
     EmergencyStatus.ARRIVED,
     EmergencyStatus.COMPLETED,
+    EmergencyStatus.PENDING,
   ];
 
   if (!allowedStatuses.includes(status)) {
