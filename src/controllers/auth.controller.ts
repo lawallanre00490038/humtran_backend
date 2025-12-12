@@ -168,20 +168,36 @@ export const getCurrentUser = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid token' });
     }
 
-    let agent: null  | SecurityAgentType= null;
+    // let agent: null  | SecurityAgentType= null;
+    // if (decoded.role === 'SECURITY') {
+    //   agent = await prisma.securityAgent.findUnique({
+    //     select: {
+    //       id: true,
+    //       lat: true,
+    //       lng: true,
+    //       name: true,
+    //       status: true,
+    //     },
+    //     where: { userId: decoded.id },
+    //   });
+    // }
+    let agent: null  | SecurityAgentType = null;
     if (decoded.role === 'SECURITY') {
       agent = await prisma.securityAgent.findUnique({
         select: {
           id: true,
+          lastUpdated: true,
           lat: true,
           lng: true,
           name: true,
+          role: true,
           status: true,
+          userId: true,
         },
         where: { userId: decoded.id },
-        
       });
     }
+
     res.json({
       agent,
       user,
