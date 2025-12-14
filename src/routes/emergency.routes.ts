@@ -343,23 +343,17 @@ const router: Router = express.Router();
 
 
 
-router.post('/', requireAuth(['USER', 'ADMIN']), requestHelp);
+router.post('/', requireAuth(['USER', 'SECURITY', 'ADMIN']), requestHelp);
 router.post('/assign', requireAuth(['USER', 'SECURITY', 'ADMIN']), assignAgent);
 
-router.get('/types', getEmergencyTypes);  
+router.get('/types', getEmergencyTypes);
 router.get('/all', requireAuth(['USER', 'SECURITY', 'ADMIN']), getAllEmergencies);
 
-
-router.get('/user/:userId', requireAuth(['ADMIN', 'USER']), getUserEmergencies);
+router.get('/user/:userId', requireAuth(['USER', 'SECURITY', 'ADMIN']), getUserEmergencies);
 router.get('/agent/:agentId', requireAuth(['ADMIN','SECURITY', 'USER']), getAgentEmergencies);
 router.delete( "/:emergencyId", requireAuth(["USER", "SECURITY", "ADMIN"]),deleteEmergency);
 router.patch('/:emergencyId/status', requireAuth(['ADMIN','SECURITY', 'USER']), updateEmergencyStatus);
 
 router.get('/securities-and-locations', requireAuth(['USER', 'SECURITY', 'ADMIN']), getSecuritiesWithLocation);
 
-
 export default router;
-
-
-
-

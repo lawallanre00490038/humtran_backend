@@ -325,6 +325,8 @@ export const getAgentEmergencies = async (req: Request, res: Response) => {
 };
 
 
+
+
 export const updateEmergencyStatus = async (req: Request, res: Response) => {
   const { status } = req.body as { status: EmergencyStatus };
   const { emergencyId } = req.params;
@@ -360,16 +362,11 @@ export const updateEmergencyStatus = async (req: Request, res: Response) => {
     }
 
     // Security agent must be the one assigned OR admin
-    const isAdmin = ['ADMIN', 'SECURITY', 'USER' ].includes(req.user.role);
+    const isAdmin = req.user.role === 'ADMIN';
+    const isSecurity = req.user.role === 'SECURITY';
     const isAssignedAgent = emergency.assignedTo?.userId === userId;
 
-    if (!isAdmin && !isAssignedAgent) {
-      return res.status(403).json({
-        message: 'You are not allowed to update this emergency'
-      });
-    }
-
-    if (!isAdmin || !isAssignedAgent) {
+    if (!(isAdmin || (isSecurity && isAssignedAgent))) {
       return res.status(403).json({
         message: 'You are not allowed to update this emergency'
       });
