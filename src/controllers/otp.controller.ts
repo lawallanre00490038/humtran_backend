@@ -184,7 +184,6 @@ export const verifyOtp = async (
     });
 
     return res.json({ 
-      agent: null,
       message: 'Registration successful. OTP sent',
       token: "",
       user: UpdatedUser,

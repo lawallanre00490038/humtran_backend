@@ -76,12 +76,23 @@ export const register = async (
       } catch (err) {
         console.error("Warning: Failed to send OTP after successful registration:", err);
       }
+      
+
+      const userWithAgent = {
+        ...user,
+        ...(securityAgent  && {
+          securityId: securityAgent .id,
+          securityLastUpdated: securityAgent .lastUpdated,
+          securityLat: securityAgent .lat,
+          securityLng: securityAgent .lng,
+          securityStatus: securityAgent .status,
+        }),
+      };
 
       res.json({
-        agent: securityAgent,
         message: 'Registration successful. OTP sent',
         token,
-        user,
+        user: userWithAgent,
       });
   
     }
@@ -113,7 +124,7 @@ export const login = async (
   }
 
   // Fetch agent IF user is SECURITY
-  let agent:  null | SecurityAgentType  = null;
+  let agent: null | SecurityAgentType = null;
 
   if (user.role === Role.SECURITY) {
     agent = await prisma.securityAgent.findUnique({
@@ -131,6 +142,18 @@ export const login = async (
     });
   }
 
+  // Merge agent info into user
+  const userWithAgent = {
+    ...user,
+    ...(agent && {
+      securityId: agent.id,
+      securityLastUpdated: agent.lastUpdated,
+      securityLat: agent.lat,
+      securityLng: agent.lng,
+      securityStatus: agent.status,
+    }),
+  };
+
   const tokenPayload = {
     agentId: agent?.id ?? "",
     email: user.email ?? '',
@@ -138,7 +161,6 @@ export const login = async (
     name: user.name,
     role: user.role,
   };
-  
 
   const token = generateToken(tokenPayload);
 
@@ -147,12 +169,11 @@ export const login = async (
     maxAge: 2 * 24 * 60 * 60 * 1000,
   });
 
-  //  SAME SHAPE AS /me
   res.json({
-    agent,
     message: 'Login successful',
     token,
-    user,
+    user: userWithAgent, // user object now has agent info
+     // optional if you still want full agent object
   });
 };
 
@@ -199,11 +220,23 @@ export const getCurrentUser = async (req: Request, res: Response) => {
         where: { userId: decoded.id },
       });
     }
+
+    // Merge agent info into user
+  const userWithAgent = {
+    ...user,
+    ...(agent && {
+      securityId: agent.id,
+      securityLastUpdated: agent.lastUpdated,
+      securityLat: agent.lat,
+      securityLng: agent.lng,
+      securityStatus: agent.status,
+    }),
+  };
+
     res.json({
-      agent,
       message: 'Information Fetched successfully',
       token,
-      user,
+      user: userWithAgent
     });
 
   } catch (error) {

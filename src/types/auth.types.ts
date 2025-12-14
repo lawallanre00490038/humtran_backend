@@ -63,7 +63,7 @@ export const SecurityAgentSchema = z.object({
 });
 
 export const AuthSuccessResponseSchema  = z.object({
-  agent: SecurityAgentSchema.nullable(),
+  // agent: SecurityAgentSchema.nullable(),
   message: z.string().optional(),
   token: z.string().optional(),
   user: UserSchema,
