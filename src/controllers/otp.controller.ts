@@ -86,6 +86,7 @@ export const resendOtp = async (
     }
 
     return res.json({ 
+      error: 'NULL',
       message: "OTP resent successfully. Please check your mail" 
     });
 
@@ -183,9 +184,10 @@ export const verifyOtp = async (
     });
 
     return res.json({ 
-      data: UpdatedUser,
-      message: "OTP verified successfully.",
-      
+      agent: null,
+      message: 'Registration successful. OTP sent',
+      token: "",
+      user: UpdatedUser,
     });
 
   } catch (error) {
