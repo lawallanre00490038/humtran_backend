@@ -1,4 +1,5 @@
 import {Role}  from  '@prisma/client';
+import {  SecurityStatus } from '@prisma/client';
 import { z } from 'zod';
 
 export const RegisterSchema = z.object({
@@ -42,7 +43,38 @@ export type MailerResponseSchemaPayload = z.infer<typeof MailerResponseSchema>
 
 
 
+export const UserSchema = z.object({
+  email: z.string().nullable(),
+  id: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  role: z.enum(Object.values(Role)),
+});
 
-export const ApiResponseSchema = z.union([SuccessResponseSchema, ErrorResponseSchema]);
+export const SecurityAgentSchema = z.object({
+  id: z.string(),
+  lastUpdated: z.date(),
+  lat: z.number(),
+  lng: z.number(),
+  name: z.string(),
+  role: z.enum(Object.values(Role)),
+  status: z.enum(Object.values(SecurityStatus)),
+  userId: z.string(),
+});
+
+export const AuthSuccessResponseSchema  = z.object({
+  agent: SecurityAgentSchema.nullable(),
+  message: z.string().optional(),
+  token: z.string().optional(),
+  user: UserSchema,
+});
+
+export type AuthResponsePayload = z.infer<typeof AuthSuccessResponseSchema>;
+
+
+export const ApiResponseSchema = z.union([
+  AuthSuccessResponseSchema,
+  ErrorResponseSchema,
+]);
 export type ApiResponsePayload = z.infer<typeof ApiResponseSchema>;
 

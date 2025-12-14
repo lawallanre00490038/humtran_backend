@@ -30,7 +30,10 @@ export const register = async (
   });
 
   if (existingUser) {
-    return res.status(400).json({ error: 'User with email or phone already exists' });
+    return res.status(400).json({
+      error: 'USER_EXIST',
+      message: 'User with email or phone already exists',
+    });
   }
 
   const hashed = await hashPassword(password);
@@ -75,10 +78,10 @@ export const register = async (
       }
 
       res.json({
-        data: user,
-        message: 'Registration successful. OTP Sent to mail.',
+        agent: securityAgent,
+        message: 'Registration successful. OTP sent',
         token,
-        
+        user,
       });
   
     }
@@ -87,7 +90,6 @@ export const register = async (
     console.error("Failed to send OTP:", err);
   }
 };
-
 
 
 
@@ -103,30 +105,40 @@ export const login = async (
     },
   });
 
-  console.log("The user from login is", user)
-
   if (!user || !(await comparePasswords(password, user.password))) {
-    return res.status(400).json({ error: 'Invalid credentials' });
+    return res.status(400).json({
+      error: 'INVALID_CREDENTIALS',
+      message: 'Invalid email/phone or password',
+    });
   }
 
-  console.log("The user from login is", user)
+  // Fetch agent IF user is SECURITY
+  let agent:  null | SecurityAgentType  = null;
 
-  let securityAgent = null;
   if (user.role === Role.SECURITY) {
-    securityAgent = await prisma.securityAgent.findFirst({
+    agent = await prisma.securityAgent.findUnique({
+      select: {
+        id: true,
+        lastUpdated: true,
+        lat: true,
+        lng: true,
+        name: true,
+        role: true,
+        status: true,
+        userId: true,
+      },
       where: { userId: user.id },
     });
   }
 
   const tokenPayload = {
-    agentId: securityAgent?.id ?? '',
+    agentId: agent?.id ?? "",
     email: user.email ?? '',
     id: user.id,
     name: user.name,
     role: user.role,
   };
-
-  console.log("The token payload from login is", tokenPayload)
+  
 
   const token = generateToken(tokenPayload);
 
@@ -135,12 +147,15 @@ export const login = async (
     maxAge: 2 * 24 * 60 * 60 * 1000,
   });
 
+  //  SAME SHAPE AS /me
   res.json({
-    data: user,
-    message: 'Login successful.',
+    agent,
+    message: 'Login successful',
     token,
+    user,
   });
 };
+
 
 
 
@@ -168,19 +183,6 @@ export const getCurrentUser = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid token' });
     }
 
-    // let agent: null  | SecurityAgentType= null;
-    // if (decoded.role === 'SECURITY') {
-    //   agent = await prisma.securityAgent.findUnique({
-    //     select: {
-    //       id: true,
-    //       lat: true,
-    //       lng: true,
-    //       name: true,
-    //       status: true,
-    //     },
-    //     where: { userId: decoded.id },
-    //   });
-    // }
     let agent: null  | SecurityAgentType = null;
     if (decoded.role === 'SECURITY') {
       agent = await prisma.securityAgent.findUnique({
@@ -197,9 +199,10 @@ export const getCurrentUser = async (req: Request, res: Response) => {
         where: { userId: decoded.id },
       });
     }
-
     res.json({
       agent,
+      message: 'Information Fetched successfully',
+      token,
       user,
     });
 
@@ -208,6 +211,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid token' });
   }
 };
+
 
 
 
