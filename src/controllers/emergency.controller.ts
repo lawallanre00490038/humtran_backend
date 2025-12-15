@@ -326,12 +326,8 @@ export const getAgentEmergencies = async (req: Request, res: Response) => {
 
 
 
-
-
 export const getEmergencyStatus = async (req: Request, res: Response) => {
   const { emergencyId } = req.params;
-  const userId = req.user.id;
-  const role = req.user.role;
 
   try {
     const emergency = await prisma.emergencyRequest.findUnique({
@@ -340,21 +336,12 @@ export const getEmergencyStatus = async (req: Request, res: Response) => {
         user: { select: { email: true , id: true, name: true, } },
       },
       where: { id: emergencyId },
-      
     });
 
     if (!emergency) {
       return res.status(404).json({ message: 'Emergency not found' });
     }
 
-    // Permission check: user is creator, assigned agent, or admin
-    const isAdmin = role === 'ADMIN';
-    const isCreator = emergency.userId === userId;
-    const isAssignedAgent = emergency.assignedTo?.userId === userId;
-
-    if (!(isAdmin || isCreator || isAssignedAgent)) {
-      return res.status(403).json({ message: 'Not authorized to view this emergency' });
-    }
 
     return res.status(200).json({
       assignedTo: emergency.assignedTo,
