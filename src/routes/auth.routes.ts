@@ -340,7 +340,7 @@ router.post('/resend-otp', resendOtp); // Added OTP resend route
 router.post('/verify-otp', verifyOtp);   // Added OTP verification route
 router.get('/me', requireAuth(['USER', 'SECURITY', 'ADMIN']), getCurrentUser)
 router.patch("/update-role/:userId", requireAuth(['USER', 'SECURITY', 'ADMIN']), updateUserRole);
-router.get("/user_roles", requireAuth(['USER', 'SECURITY', 'ADMIN']), getUserRoles);
+router.get("/user_roles", getUserRoles);
 
 
 router.get("/users/all", requireAuth(['ADMIN']),  getAllUsers);

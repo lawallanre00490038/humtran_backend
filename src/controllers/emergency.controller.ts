@@ -374,7 +374,7 @@ export const updateEmergencyStatus = async (req: Request, res: Response) => {
 
     // Update status
     const updated = await prisma.emergencyRequest.update({
-      data: { status: status as EmergencyStatus },
+      data: { status },
       include: {
         assignedTo: {
           select: {
@@ -397,7 +397,7 @@ export const updateEmergencyStatus = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       emergency: updated,
-      message: `Emergency updated to ${String(status)}`,
+      message: `Emergency updated to ${status}`,
     });
 
   } catch (error) {
