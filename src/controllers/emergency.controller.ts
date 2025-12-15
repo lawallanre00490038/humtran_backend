@@ -327,11 +327,53 @@ export const getAgentEmergencies = async (req: Request, res: Response) => {
 
 
 
+
+export const getEmergencyStatus = async (req: Request, res: Response) => {
+  const { emergencyId } = req.params;
+  const userId = req.user.id;
+  const role = req.user.role;
+
+  try {
+    const emergency = await prisma.emergencyRequest.findUnique({
+      include: {
+        assignedTo: { select: { id: true, name: true , userId: true } },
+        user: { select: { email: true , id: true, name: true, } },
+      },
+      where: { id: emergencyId },
+      
+    });
+
+    if (!emergency) {
+      return res.status(404).json({ message: 'Emergency not found' });
+    }
+
+    // Permission check: user is creator, assigned agent, or admin
+    const isAdmin = role === 'ADMIN';
+    const isCreator = emergency.userId === userId;
+    const isAssignedAgent = emergency.assignedTo?.userId === userId;
+
+    if (!(isAdmin || isCreator || isAssignedAgent)) {
+      return res.status(403).json({ message: 'Not authorized to view this emergency' });
+    }
+
+    return res.status(200).json({
+      assignedTo: emergency.assignedTo,
+      createdAt: emergency.createdAt,
+      emergencyId: emergency.id,
+      status: emergency.status,
+      type: emergency.type,
+      user: emergency.user,
+    });
+  } catch (error) {
+    console.error('Error fetching emergency status:', error);
+    return res.status(500).json({ error, message: 'Server error' });
+  }
+};
+
+
 export const updateEmergencyStatus = async (req: Request, res: Response) => {
   const { status } = req.body as { status: EmergencyStatus };
   const { emergencyId } = req.params;
-  
-  const userId = req.user.id; // from your auth middleware
 
   const allowedStatuses = [
     EmergencyStatus.ASSIGNED,
@@ -359,17 +401,6 @@ export const updateEmergencyStatus = async (req: Request, res: Response) => {
 
     if (!emergency) {
       return res.status(404).json({ message: 'Emergency not found' });
-    }
-
-    // Security agent must be the one assigned OR admin
-    const isAdmin = req.user.role === 'ADMIN';
-    const isSecurity = req.user.role === 'SECURITY';
-    const isAssignedAgent = emergency.assignedTo?.userId === userId;
-
-    if (!(isAdmin || (isSecurity && isAssignedAgent))) {
-      return res.status(403).json({
-        message: 'You are not allowed to update this emergency'
-      });
     }
 
     // Update status

@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 
-import { deleteEmergency,  getAgentEmergencies, getAllEmergencies, getEmergencyTypes ,getUserEmergencies, updateEmergencyStatus} from '@/controllers/emergency.controller';
+import { deleteEmergency,  getAgentEmergencies, getAllEmergencies, getEmergencyStatus, getEmergencyTypes ,getUserEmergencies, updateEmergencyStatus} from '@/controllers/emergency.controller';
 import { assignAgent, requestHelp } from '@/controllers/emergency.controller';
 import { getSecuritiesWithLocation } from '@/controllers/securities.controller';
 import { requireAuth } from '@/middlewares/auth.middleware';
@@ -220,6 +220,105 @@ const router: Router = express.Router();
  */
 
 
+
+
+/**
+ * @swagger
+ * /api/emergency/{emergencyId}/get/status:
+ *   get:
+ *     summary: Get the status of a specific emergency
+ *     description: |
+ *       Fetches the current status of a specific emergency request.  
+ *       Only the assigned security agent, the user who created the emergency, or an ADMIN can access this endpoint.  
+ *       Response includes:
+ *       - Emergency ID
+ *       - Status (PENDING, ASSIGNED, EN_ROUTE, ARRIVED, COMPLETED)
+ *       - Type of emergency
+ *       - User who created the emergency
+ *       - Assigned agent details
+ *       - Location (lat/lng)
+ *       - Timestamps
+ *     tags: [Emergency]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: emergencyId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the emergency to fetch status for
+ *     responses:
+ *       200:
+ *         description: Emergency status fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 emergencyId:
+ *                   type: string
+ *                 status:
+ *                   type: string
+ *                   enum: [PENDING, ASSIGNED, EN_ROUTE, ARRIVED, COMPLETED]
+ *                 type:
+ *                   type: string
+ *                 lat:
+ *                   type: number
+ *                 lng:
+ *                   type: number
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                 assignedTo:
+ *                   type: object
+ *                   nullable: true
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     lat:
+ *                       type: number
+ *                     lng:
+ *                       type: number
+ *                     status:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized — missing or invalid token
+ *       403:
+ *         description: Forbidden — user is not assigned to this emergency
+ *       404:
+ *         description: Emergency not found
+ *       500:
+ *         description: Server error
+ */
+
+
+
+
+
 /**
  * @swagger
  * /api/emergency/{emergencyId}/status:
@@ -342,7 +441,6 @@ const router: Router = express.Router();
  */
 
 
-
 router.post('/', requireAuth(['USER', 'SECURITY', 'ADMIN']), requestHelp);
 router.post('/assign', requireAuth(['USER', 'SECURITY', 'ADMIN']), assignAgent);
 
@@ -352,6 +450,7 @@ router.get('/all', requireAuth(['USER', 'SECURITY', 'ADMIN']), getAllEmergencies
 router.get('/user/:userId', requireAuth(['USER', 'SECURITY', 'ADMIN']), getUserEmergencies);
 router.get('/agent/:agentId', requireAuth(['ADMIN','SECURITY', 'USER']), getAgentEmergencies);
 router.delete( "/:emergencyId", requireAuth(["USER", "SECURITY", "ADMIN"]),deleteEmergency);
+router.get( "/:emergencyId/get/status", requireAuth(["USER", "SECURITY", "ADMIN"]), getEmergencyStatus);
 router.patch('/:emergencyId/status', requireAuth(['ADMIN','SECURITY', 'USER']), updateEmergencyStatus);
 
 router.get('/securities-and-locations', requireAuth(['USER', 'SECURITY', 'ADMIN']), getSecuritiesWithLocation);
