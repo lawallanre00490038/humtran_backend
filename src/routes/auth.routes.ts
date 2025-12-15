@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 
 // Ensure all controller functions, including the new ones, are imported.
-import { getAllUsers, getCurrentUser, getUserRoles, login, register, updateUserRole } from '@/controllers/auth.controller';
+import { deleteUser, getAllUsers, getCurrentUser, getUserRoles, login, register, updateUserRole } from '@/controllers/auth.controller';
 import { resendOtp, verifyOtp } from '@/controllers/otp.controller';
 import { requireAuth } from '@/middlewares/auth.middleware';
 
@@ -241,7 +241,7 @@ const router: Router = express.Router();
 
 
 /**
- * @openapi
+ * @swagger
  * /api/auth/update-role/{userId}:
  *   patch:
  *     summary: Update a user's role
@@ -278,6 +278,49 @@ const router: Router = express.Router();
  *         description: Forbidden (not an admin)
  *       404:
  *         description: User not found
+ */
+
+
+
+
+
+/**
+ * @swagger
+ * /api/auth/{userId}:
+ *   delete:
+ *     summary: Delete a user
+ *     description: |
+ *       Deletes a user from the system.  
+ *       Only an admin can delete a user.  
+ *       If the user is a security agent, their associated security record will also be deleted.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *       403:
+ *         description: Not authorized to delete users
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
  */
 
 
@@ -334,13 +377,17 @@ const router: Router = express.Router();
 
 
 
+
+
+
 router.post('/register', register);
 router.post('/login', login);
-router.post('/resend-otp', resendOtp); // Added OTP resend route
-router.post('/verify-otp', verifyOtp);   // Added OTP verification route
+router.post('/resend-otp', resendOtp);
+router.post('/verify-otp', verifyOtp);
 router.get('/me', requireAuth(['USER', 'SECURITY', 'ADMIN']), getCurrentUser)
 router.patch("/update-role/:userId", requireAuth(['USER', 'SECURITY', 'ADMIN']), updateUserRole);
 router.get("/user_roles", getUserRoles);
+router.delete("/:userId", requireAuth(['USER', 'SECURITY', 'ADMIN']), deleteUser)
 
 
 router.get("/users/all", requireAuth(['ADMIN']),  getAllUsers);

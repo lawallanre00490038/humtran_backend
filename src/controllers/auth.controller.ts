@@ -248,6 +248,31 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 
 
 
+// Delete a user
+export const deleteUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Delete associated securityAgent if exists
+    if (user.role === Role.SECURITY) {
+      await prisma.securityAgent.deleteMany({ where: { userId } });
+    }
+
+    await prisma.user.delete({ where: { id: userId } });
+
+    return res.json({ message: "User deleted successfully", userId });
+  } catch (error) {
+    console.error("Failed to delete user:", error);
+    return res.status(500).json({ error, message: "Server error" });
+  }
+};
+
+
+
 export const updateUserRole = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
