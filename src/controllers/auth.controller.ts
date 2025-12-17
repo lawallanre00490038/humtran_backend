@@ -104,27 +104,112 @@ export const register = async (
 
 
 
+// export const login = async (
+//   req: Request<unknown, unknown, LoginPayload>,
+//   res: Response<ApiResponsePayload>
+// ) => {
+//   const { identifier, password } = req.body;
+
+//   const user = await prisma.user.findFirst({
+//     where: {
+//       OR: [{ email: identifier }, { phone: identifier }],
+//     },
+//   });
+
+//   if (!user || !(await comparePasswords(password, user.password))) {
+//     return res.status(400).json({
+//       error: 'INVALID_CREDENTIALS',
+//       message: 'Invalid email/phone or password',
+//     });
+//   }
+
+//   // Fetch agent IF user is SECURITY
+//   let agent: null | SecurityAgentType = null;
+
+//   if (user.role === Role.SECURITY) {
+//     agent = await prisma.securityAgent.findUnique({
+//       select: {
+//         id: true,
+//         lastUpdated: true,
+//         lat: true,
+//         lng: true,
+//         name: true,
+//         role: true,
+//         status: true,
+//         userId: true,
+//       },
+//       where: { userId: user.id },
+//     });
+//   }
+
+//   // Merge agent info into user
+//   const userWithAgent = {
+//     ...user,
+//     ...(agent && {
+//       securityId: agent.id,
+//       securityLastUpdated: agent.lastUpdated,
+//       securityLat: agent.lat,
+//       securityLng: agent.lng,
+//       securityStatus: agent.status,
+//     }),
+//   };
+
+//   const tokenPayload = {
+//     agentId: agent?.id ?? "",
+//     email: user.email ?? '',
+//     id: user.id,
+//     name: user.name,
+//     role: user.role,
+//   };
+
+//   const token = generateToken(tokenPayload);
+
+//   res.cookie('token', token, {
+//     httpOnly: true,
+//     maxAge: 2 * 24 * 60 * 60 * 1000,
+//   });
+
+//   res.json({
+//     message: 'Login successful',
+//     token,
+//     user: userWithAgent, // user object now has agent info
+//      // optional if you still want full agent object
+//   });
+// };
+
 export const login = async (
   req: Request<unknown, unknown, LoginPayload>,
   res: Response<ApiResponsePayload>
 ) => {
   const { identifier, password } = req.body;
 
+  // 1. Find user by email or phone
   const user = await prisma.user.findFirst({
     where: {
       OR: [{ email: identifier }, { phone: identifier }],
     },
   });
 
-  if (!user || !(await comparePasswords(password, user.password))) {
-    return res.status(400).json({
-      error: 'INVALID_CREDENTIALS',
-      message: 'Invalid email/phone or password',
+  // 2. User does not exist
+  if (!user) {
+    return res.status(404).json({
+      error: 'USER_NOT_FOUND',
+      message: 'User does not exist',
     });
   }
 
-  // Fetch agent IF user is SECURITY
-  let agent: null | SecurityAgentType = null;
+  // 3. Password is incorrect
+  const isPasswordValid = await comparePasswords(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.status(400).json({
+      error: 'INVALID_PASSWORD',
+      message: 'Incorrect password',
+    });
+  }
+
+  // 4. Fetch agent IF user is SECURITY
+  let agent: null  | SecurityAgentType = null;
 
   if (user.role === Role.SECURITY) {
     agent = await prisma.securityAgent.findUnique({
@@ -142,7 +227,7 @@ export const login = async (
     });
   }
 
-  // Merge agent info into user
+  // 5. Merge agent info into user
   const userWithAgent = {
     ...user,
     ...(agent && {
@@ -154,8 +239,9 @@ export const login = async (
     }),
   };
 
+  // 6. Token payload
   const tokenPayload = {
-    agentId: agent?.id ?? "",
+    agentId: agent?.id ?? '',
     email: user.email ?? '',
     id: user.id,
     name: user.name,
@@ -164,16 +250,17 @@ export const login = async (
 
   const token = generateToken(tokenPayload);
 
+  // 7. Set cookie
   res.cookie('token', token, {
     httpOnly: true,
     maxAge: 2 * 24 * 60 * 60 * 1000,
   });
 
-  res.json({
+  // 8. Success response
+  return res.status(200).json({
     message: 'Login successful',
     token,
-    user: userWithAgent, // user object now has agent info
-     // optional if you still want full agent object
+    user: userWithAgent,
   });
 };
 
@@ -248,28 +335,94 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 
 
 
-// Delete a user
+// Delete a user and ALL associated data
 export const deleteUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Delete associated securityAgent if exists
-    if (user.role === Role.SECURITY) {
-      await prisma.securityAgent.deleteMany({ where: { userId } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    await prisma.user.delete({ where: { id: userId } });
+    await prisma.$transaction(async (tx) => {
+      /**  Delete emergencies CREATED by the user */
+      await tx.emergencyRequest.deleteMany({
+        where: { userId },
+      });
 
-    return res.json({ message: "User deleted successfully", userId });
+      /* If user is a SECURITY agent, clean agent-related data */
+      if (user.role === Role.SECURITY) {
+        // Find agent
+        const agent = await tx.securityAgent.findUnique({
+          where: { userId },
+        });
+
+        if (agent) {
+          // Delete emergencies ASSIGNED to this agent
+          await tx.emergencyRequest.deleteMany({
+            where: { securityId: agent.id },
+          });
+
+          // Delete agent record
+          await tx.securityAgent.delete({
+            where: { id: agent.id },
+          });
+        }
+      }
+
+      /**  Delete chat-related data */
+      const sessions = await tx.chatSession.findMany({
+        select: { id: true },
+        where: {
+          participants: {
+            some: { userId },
+          },
+        },
+        
+      });
+
+      const sessionIds = sessions.map(s => s.id);
+
+      if (sessionIds.length > 0) {
+        // Messages
+        await tx.message.deleteMany({
+          where: { sessionId: { in: sessionIds } },
+        });
+
+        // Participants
+        await tx.chatParticipant.deleteMany({
+          where: { sessionId: { in: sessionIds } },
+        });
+
+        // Sessions
+        await tx.chatSession.deleteMany({
+          where: { id: { in: sessionIds } },
+        });
+      }
+
+      /**  Finally delete the user */
+      await tx.user.delete({
+        where: { id: userId },
+      });
+    });
+
+    return res.json({
+      message: "User and all associated data deleted successfully",
+      userId,
+    });
+
   } catch (error) {
     console.error("Failed to delete user:", error);
-    return res.status(500).json({ error, message: "Server error" });
+    return res.status(500).json({
+      error: "Failed to delete user",
+    });
   }
 };
+
 
 
 
