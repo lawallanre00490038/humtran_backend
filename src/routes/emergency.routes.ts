@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 
-import { deleteEmergency,  getAgentEmergencies, getAllEmergencies, getEmergencyStatus, getEmergencyTypes ,getUserEmergencies, updateEmergencyStatus} from '@/controllers/emergency.controller';
+import { deleteEmergency,  getActiveEmergencies,  getAgentEmergencies, getAllEmergencies, getEmergencyStatus, getEmergencyTypes ,getUserEmergencies, updateEmergencyStatus} from '@/controllers/emergency.controller';
 import { assignAgent, requestHelp } from '@/controllers/emergency.controller';
 import { getSecuritiesWithLocation } from '@/controllers/securities.controller';
 import { requireAuth } from '@/middlewares/auth.middleware';
@@ -217,6 +217,49 @@ const router: Router = express.Router();
  *         description: Forbidden — user does not have the required role
  *       404:
  *         description: No emergencies found for this agent
+ */
+
+
+
+/**
+ * @swagger
+ * /api/emergency/{userId}/{status}/my-active:
+ *   get:
+ *     summary: Get active emergencies for a user by status
+ *     description: |
+ *       Returns emergencies for a specific user filtered by a single status.  
+ *       Roles:  
+ *       - USER: emergencies they requested  
+ *       - SECURITY: emergencies assigned to them  
+ *       - ADMIN: all emergencies  
+ *     tags: [Emergency]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user whose emergencies are fetched
+ *       - in: path
+ *         name: status
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [ASSIGNED, EN_ROUTE, ARRIVED, COMPLETED, PENDING]
+ *         description: Status to filter emergencies by
+ *     responses:
+ *       200:
+ *         description: List of emergencies filtered by status
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden — user role not allowed
+ *       404:
+ *         description: No emergencies found for this status
+ *       500:
+ *         description: Server error
  */
 
 
@@ -449,7 +492,8 @@ router.get('/all', requireAuth(['USER', 'SECURITY', 'ADMIN']), getAllEmergencies
 
 router.get('/user/:userId', requireAuth(['USER', 'SECURITY', 'ADMIN']), getUserEmergencies);
 router.get('/agent/:agentId', requireAuth(['ADMIN','SECURITY', 'USER']), getAgentEmergencies);
-router.delete( "/:emergencyId", requireAuth(["USER", "SECURITY", "ADMIN"]),deleteEmergency);
+router.get('/:userId/:status/my-active', requireAuth(['ADMIN', 'SECURITY', 'USER']), getActiveEmergencies);
+router.delete( "/:emergencyId", requireAuth(["USER", "SECURITY", "ADMIN"]), deleteEmergency);
 router.get( "/:emergencyId/get/status", requireAuth(["USER", "SECURITY", "ADMIN"]), getEmergencyStatus);
 router.patch('/:emergencyId/status', requireAuth(['ADMIN','SECURITY', 'USER']), updateEmergencyStatus);
 

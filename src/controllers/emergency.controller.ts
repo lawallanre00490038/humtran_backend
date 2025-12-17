@@ -325,6 +325,75 @@ export const getAgentEmergencies = async (req: Request, res: Response) => {
 };
 
 
+export const getActiveEmergencies = async (req: Request, res: Response) => {
+  const { status, userId } = req.params;
+  const role = req.user.role;
+
+  // Validate status
+  const allowedStatuses: EmergencyStatus[] = [
+    EmergencyStatus.ASSIGNED,
+    EmergencyStatus.EN_ROUTE,
+    EmergencyStatus.ARRIVED,
+    EmergencyStatus.COMPLETED,
+    EmergencyStatus.PENDING,
+  ];
+
+  if (!allowedStatuses.includes(status as EmergencyStatus)) {
+    return res.status(400).json({
+      message: `Invalid status. Allowed values: ${allowedStatuses.join(", ")}`,
+    });
+  }
+
+  try {
+    let emergencies;
+
+    if (role === "USER") {
+      emergencies = await prisma.emergencyRequest.findMany({
+        include: {
+          assignedTo: { select: { id: true, name: true, status: true } },
+          user: { select: { email: true, id: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        where: { status: status as EmergencyStatus, userId },
+        
+        
+      });
+    } else if (role === "SECURITY") {
+      emergencies = await prisma.emergencyRequest.findMany({
+        include: {
+          assignedTo: { select: { id: true, name: true, status: true } },
+          user: { select: { email: true , id: true, name: true} },
+        },
+        orderBy: { createdAt: "desc" },
+        where: { securityId: userId, status: status as EmergencyStatus },
+        
+        
+      });
+    } else if (role === "ADMIN") {
+      emergencies = await prisma.emergencyRequest.findMany({
+        include: {
+          assignedTo: { select: { id: true, name: true, status: true } },
+          user: { select: {  email: true, id: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        where: { status: status as EmergencyStatus },
+      });
+    }
+
+    return res.status(200).json({
+      emergencies,
+      message: `Fetched emergencies with status ${status}`,
+    });
+  } catch (error) {
+    console.error("Error fetching active emergencies:", error);
+    return res.status(500).json({ error, message: "Server error" });
+  }
+};
+
+
+
+
+
 
 export const getEmergencyStatus = async (req: Request, res: Response) => {
   const { emergencyId } = req.params;
@@ -356,6 +425,8 @@ export const getEmergencyStatus = async (req: Request, res: Response) => {
     return res.status(500).json({ error, message: 'Server error' });
   }
 };
+
+
 
 
 export const updateEmergencyStatus = async (req: Request, res: Response) => {
